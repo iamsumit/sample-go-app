@@ -1,0 +1,20 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/taskfile.json
+version: 3
+
+includes:
+  sample: ./tasks/sample.yml
+  message: ./tasks/message.yml
+
+
+tasks:
+  setup-deps:
+    desc: Setup the basic dependencies to run the application.
+    cmds:
+      - task: message:setup-deps
+
+  init:
+    desc: Initialize the development environment
+    cmds:
+      - task: sample:init
+      - task: message:init

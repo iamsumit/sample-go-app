@@ -1,0 +1,39 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/taskfile.json
+version: 3
+
+tasks:
+  setup-deps:
+    desc: Setup the basic dependencies to run the application.
+    status:
+      - command -v protoc
+    cmds:
+      - go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+
+  init:
+    desc: "Setup the environment variables."
+    cmds:
+      - cp .env.sample .env
+      - protoc -I={{.SRC_DIR}} --go_out={{.DST_DIR}} {{.SRC_DIR}}/message.proto
+    vars:
+      SRC_DIR: '../../definitions/message'
+      DST_DIR: '../../pkg/pubsub'
+    dir: ././services/message
+
+  start-pubsub-emulator:
+    cmds:
+      - PUBSUB_PROJECT_ID=sample-go-app gcloud beta emulators pubsub start --quiet --host-port=0.0.0.0:8085
+
+  read:
+    desc: "read the message in the message."
+    dotenv: ['.env']
+    cmds:
+      - go run main.go read
+    dir: ././services/message
+
+  publish:
+    desc: "Publish the message in the message."
+    dotenv: ['.env']
+    cmds:
+      - go run main.go publish
+    dir: ././services/message

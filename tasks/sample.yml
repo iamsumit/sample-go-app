@@ -1,0 +1,18 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/taskfile.json
+version: 3
+
+tasks:
+  init:
+    desc: "Setup the environment variables."
+    status:
+      - test -f .env
+    cmds:
+      - cp .env.sample .env
+    dir: ././services/sample
+  run:
+    desc: "Start the sample application."
+    dotenv: ['.env']
+    cmds:
+      - go run main.go
+    dir: ././services/sample

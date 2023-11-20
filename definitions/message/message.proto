@@ -1,0 +1,50 @@
+syntax = "proto3";
+package tutorial;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "definitions/message";
+
+enum MessageType {
+  Unspecified = 0;
+  VCS = 1;
+}
+
+enum VCSType {
+  Unknown = 0;
+  GITHUB = 1;
+  GITLAB = 2;
+}
+
+message PullRequest {
+  string title = 1;
+  int32 number = 2;
+
+  enum Action {
+    DEFAULT = 0;
+    CLOSED = 1;
+    OPENED = 2;
+    EDITED = 3;
+  }
+
+  message Details {
+    string source_branch = 1;
+    string dest_branch = 2;
+    Action type = 3;
+  }
+
+  Details details = 3;
+
+  google.protobuf.Timestamp created = 4;
+}
+
+message VCSMessage {
+  VCSType type = 1;
+  PullRequest request = 2;
+}
+
+// Our address book file is just one of these.
+message Message {
+  MessageType message = 1;
+  VCSMessage vcs = 2;
+}

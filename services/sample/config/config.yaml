@@ -1,0 +1,15 @@
+http:
+  port: 8080
+pubsub:
+  name: sample-pubsub
+  project: sample-go-app
+  topic: sample-topic
+  subscription: sample-subscription
+mysql:
+  name: sample_db2
+  user: root
+  password: Root@1234
+  host: localhost
+  port: 3306
+launch_darkly:
+  secret_key: some-secret-key
