@@ -6,10 +6,10 @@ pubsub:
   topic: sample-topic
   subscription: sample-subscription
 mysql:
-  name: sample_db2
-  user: root
-  password: Root@1234
+  name: sample_db
+  user: user
+  password: password
   host: localhost
-  port: 3306
+  port: 8086
 launch_darkly:
   secret_key: some-secret-key

@@ -1,0 +1,34 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/taskfile.json
+version: 3
+
+tasks:
+  compose-up-single:
+    desc: "run docker compose up for a single service."
+    cmds:
+      - docker-compose -f {{ .COMPOSE_FILE }} up -d {{ .SERVICE_NAME }}
+    vars:
+      COMPOSE_FILE: '{{ default "docker-compose.yml" .COMPOSE_FILE }}'
+      SERVICE_NAME: '{{ .SERVICE_NAME }}'
+  
+  compose-down-single:
+    desc: "run docker compose up for a single service."
+    cmds:
+      - docker-compose -f {{ .COMPOSE_FILE }} down {{ .SERVICE_NAME }}
+    vars:
+      COMPOSE_FILE: '{{ default "docker-compose.yml" .COMPOSE_FILE }}'
+      SERVICE_NAME: '{{ .SERVICE_NAME }}'
+
+  compose-down:
+    desc: "Execute docker-compose down command"
+    cmds:
+      - docker-compose -f {{ .COMPOSE_FILE }} down
+    vars:
+      COMPOSE_FILE: '{{ default "docker-compose.yml" .COMPOSE_FILE }}'
+
+  compose-up:
+    desc: "Execute docker-compose up command"
+    cmds:
+      - docker-compose -f {{ .COMPOSE_FILE }} up
+    vars:
+      COMPOSE_FILE: '{{ default "docker-compose.yml" .COMPOSE_FILE }}'

@@ -1,0 +1,26 @@
+version: '3'
+services:
+  db:
+    platform: linux/x86_64
+    image: mysql:8
+    container_name: sample_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: sample_db
+    ports:
+      - "8086:3306"
+
+  pubsub:
+    image: google/cloud-sdk
+    container_name: sample_pubsub
+    command: gcloud beta emulators pubsub start --quiet --host-port=0.0.0.0:8085
+    environment:
+      - PUBSUB_PROJECT_ID=sample-go-app
+    ports:
+      - "8085:8085"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+

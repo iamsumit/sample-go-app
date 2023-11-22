@@ -2,6 +2,9 @@
 # yaml-language-server: $schema=https://json.schemastore.org/taskfile.json
 version: 3
 
+includes:
+  docker: ./docker.yml
+
 tasks:
   setup-deps:
     desc: Setup the basic dependencies to run the application.
@@ -20,9 +23,17 @@ tasks:
       DST_DIR: '../../pkg/pubsub'
     dir: ././services/message
 
-  start-pubsub-emulator:
+  pubsub-start:
     cmds:
-      - PUBSUB_PROJECT_ID=sample-go-app gcloud beta emulators pubsub start --quiet --host-port=0.0.0.0:8085
+      - task: docker:compose-up-single
+        vars:
+          SERVICE_NAME: pubsub
+
+  pubsub-stop:
+    cmds:
+      - task: docker:compose-down-single
+        vars:
+          SERVICE_NAME: pubsub
 
   read:
     desc: "read the message in the message."

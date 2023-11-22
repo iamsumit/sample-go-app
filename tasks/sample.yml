@@ -2,6 +2,9 @@
 # yaml-language-server: $schema=https://json.schemastore.org/taskfile.json
 version: 3
 
+includes:
+  docker: ./docker.yml
+
 tasks:
   init:
     desc: "Setup the environment variables."
@@ -10,6 +13,19 @@ tasks:
     cmds:
       - cp .env.sample .env
     dir: ././services/sample
+
+  db-start:
+    cmds:
+      - task: docker:compose-up-single
+        vars:
+          SERVICE_NAME: db
+
+  db-stop:
+    cmds:
+      - task: docker:compose-down-single
+        vars:
+          SERVICE_NAME: db
+
   run:
     desc: "Start the sample application."
     dotenv: ['.env']

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -9,14 +10,11 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/iamsumit/sample-go-app/pkg/config"
 	"github.com/iamsumit/sample-go-app/pkg/db"
-	"github.com/iamsumit/sample-go-app/pkg/launchdarkly"
 	"github.com/spf13/viper"
 )
 
 var (
-	configuration  config.Configuration
-	ldClient       *launchdarkly.LaunchDarklyClient
-	databaseClient *db.DataBaseClient
+	configuration config.Configuration
 )
 
 const (
@@ -24,6 +22,10 @@ const (
 )
 
 func init() {
+	// -------------------------------------------------------------------
+	// Configurations
+	// -------------------------------------------------------------------
+
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath("./config")
@@ -38,20 +40,57 @@ func init() {
 		fmt.Println("Config file changed:", e.Name)
 		// ReadConfig(&configuration)
 	})
-
-	// ldClient = launchdarkly.NewClient(configuration.LaunchDarkly.SecretKey)
-
-	databaseClient = db.NewClient()
 }
 
 func main() {
 	fmt.Println(configuration.Http.Port)
 
+	if err := start(); err != nil {
+		panic(err)
+	}
+}
+
+func start() error {
+	// -------------------------------------------------------------------
+	// Database
+	// -------------------------------------------------------------------
+	sqlDB, err := db.Handler(&db.Config{
+		Type:     db.MySQL,
+		Name:     configuration.MySQL.Name,
+		User:     configuration.MySQL.User,
+		Password: configuration.MySQL.Password,
+		Port:     configuration.MySQL.Port,
+		Host:     configuration.MySQL.Host,
+	})
+	if err != nil {
+		return err
+	}
+
+	log.Println("Database connected!")
+
+	defer func() {
+		_ = sqlDB.Close()
+	}()
+
+	// -------------------------------------------------------------------
+	// Launch Darkly
+	// -------------------------------------------------------------------
+
+	// ldClient = launchdarkly.NewClient(configuration.LaunchDarkly.SecretKey)
+
+	// -------------------------------------------------------------------
+	// Routing
+	// -------------------------------------------------------------------
 	http.HandleFunc("/", helloWorldHandler)
 	http.HandleFunc("/reload-config", reloadConfigHandler)
 	http.HandleFunc("/user/", userHandler)
+
+	// -------------------------------------------------------------------
+	// Server
+	// -------------------------------------------------------------------
 	fmt.Println("Server started at http://localhost:8080")
 	http.ListenAndServe(":8080", nil)
+	return nil
 }
 
 func userHandler(w http.ResponseWriter, r *http.Request) {
@@ -62,8 +101,7 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 	uid := parts[len(parts)-1]
 	id, _ := strconv.Atoi(uid)
 
-	user := databaseClient.GetConfigByUID(id)
-	fmt.Fprintf(w, "User: %v", user)
+	fmt.Fprintf(w, "User: %v", id)
 }
 
 func helloWorldHandler(w http.ResponseWriter, r *http.Request) {

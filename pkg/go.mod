@@ -4,8 +4,10 @@ go 1.20
 
 require (
 	cloud.google.com/go/pubsub v1.33.0
+	github.com/go-sql-driver/mysql v1.7.1
 	github.com/launchdarkly/go-sdk-common/v3 v3.1.0
 	github.com/launchdarkly/go-server-sdk/v6 v6.1.1
+	google.golang.org/protobuf v1.30.0
 )
 
 require (
@@ -44,5 +46,4 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20230530153820-e85fd2cbaebc // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230530153820-e85fd2cbaebc // indirect
 	google.golang.org/grpc v1.55.0 // indirect
-	google.golang.org/protobuf v1.30.0 // indirect
 )
