@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -10,6 +9,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/iamsumit/sample-go-app/pkg/config"
 	"github.com/iamsumit/sample-go-app/pkg/db"
+	"github.com/iamsumit/sample-go-app/pkg/logger"
 	"github.com/spf13/viper"
 )
 
@@ -43,14 +43,23 @@ func init() {
 }
 
 func main() {
-	fmt.Println(configuration.Http.Port)
-
 	if err := start(); err != nil {
 		panic(err)
 	}
 }
 
 func start() error {
+	// -------------------------------------------------------------------
+	// Logger
+	// -------------------------------------------------------------------
+	log, err := logger.New(&logger.Config{
+		LoggerType: logger.SLog,
+		LogFormat:  logger.JSON,
+	})
+	if err != nil {
+		return err
+	}
+
 	// -------------------------------------------------------------------
 	// Database
 	// -------------------------------------------------------------------
@@ -66,11 +75,18 @@ func start() error {
 		return err
 	}
 
-	log.Println("Database connected!")
-
 	defer func() {
 		_ = sqlDB.Close()
 	}()
+
+	// -------------------------------------------------------------------
+	// Database connection information
+	// -------------------------------------------------------------------
+	log.Info(
+		"Database connected!",
+		"database", configuration.MySQL.Name,
+		"host", configuration.MySQL.Host,
+	)
 
 	// -------------------------------------------------------------------
 	// Launch Darkly
@@ -88,8 +104,21 @@ func start() error {
 	// -------------------------------------------------------------------
 	// Server
 	// -------------------------------------------------------------------
-	fmt.Println("Server started at http://localhost:8080")
-	http.ListenAndServe(":8080", nil)
+	log.Info(
+		"Server is gettig started!",
+		"host", "localhost",
+		"port", configuration.Http.Port,
+	)
+
+	// -------------------------------------------------------------------
+	// Start the server
+	// -------------------------------------------------------------------
+
+	addr := fmt.Sprintf(":%d", configuration.Http.Port)
+	if err := http.ListenAndServe(addr, nil); err != nil {
+		return err
+	}
+
 	return nil
 }
 

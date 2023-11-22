@@ -19,7 +19,7 @@ var (
 
 func init() {
 	ctx = context.Background()
-	pubsubClient, _ = pbsb.NewPubSub(ctx, projectID, topic, subscription)
+	pubsubClient, _ = pbsb.New(ctx, projectID, topic, subscription)
 
 	err := pubsubClient.CreateTopicAndSubscription(ctx)
 	if err != nil {

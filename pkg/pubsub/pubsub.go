@@ -12,16 +12,17 @@ import (
 // PubSub is the GCLOUD PubSub implementation of the pubsub.Service Interface
 type PubSub struct {
 	Client             *pubsub.Client
-	PubSubConfig       PubSubConfig
+	TopicConfig        TopicConfig
 	SubscriptionConfig SubscriptionConfig
 }
 
-// PubSubConfig for pubsub details
-type PubSubConfig struct {
+// TopicConfig for pubsub topic details
+type TopicConfig struct {
 	ProjectID string
 	TopicName string
 }
 
+// SubscriptionConfig for pubsub subscription details
 type SubscriptionConfig struct {
 	SubscriptionName   string
 	Subscription       *pubsub.Subscription
@@ -37,8 +38,8 @@ type Message struct {
 	Data json.RawMessage
 }
 
-// NewPubSub creates a pubsub using GCE PubSub backend
-func NewPubSub(ctx context.Context, projectID string, topicName string, subscriptionName string) (*PubSub, error) {
+// New creates a pubsub using GCE PubSub backend
+func New(ctx context.Context, projectID string, topicName string, subscriptionName string) (*PubSub, error) {
 	client, err := pubsub.NewClient(ctx, projectID)
 	if err != nil {
 		return &PubSub{}, err
@@ -46,7 +47,7 @@ func NewPubSub(ctx context.Context, projectID string, topicName string, subscrip
 
 	ps := PubSub{
 		Client: client,
-		PubSubConfig: PubSubConfig{
+		TopicConfig: TopicConfig{
 			ProjectID: projectID,
 			TopicName: topicName,
 		},
@@ -59,23 +60,24 @@ func NewPubSub(ctx context.Context, projectID string, topicName string, subscrip
 	return &ps, nil
 }
 
+// CreateTopicAndSubscription creates a topic and subscription if they don't exist yet.
 func (c *PubSub) CreateTopicAndSubscription(ctx context.Context) error {
 	// Create a topic
-	topic := c.Client.Topic(c.PubSubConfig.TopicName)
+	topic := c.Client.Topic(c.TopicConfig.TopicName)
 	exists, err := topic.Exists(ctx)
 	if err != nil {
 		return fmt.Errorf("Error checking if topic exists: %v", err)
 	}
 
 	if !exists {
-		_, err := c.Client.CreateTopic(ctx, c.PubSubConfig.TopicName)
+		_, err := c.Client.CreateTopic(ctx, c.TopicConfig.TopicName)
 		if err != nil {
 			return fmt.Errorf("Error creating topic: %v", err)
 		}
 
-		fmt.Printf("Topic %s created\n", c.PubSubConfig.TopicName)
+		fmt.Printf("Topic %s created\n", c.TopicConfig.TopicName)
 	} else {
-		fmt.Printf("Topic %s already exists\n", c.PubSubConfig.TopicName)
+		fmt.Printf("Topic %s already exists\n", c.TopicConfig.TopicName)
 	}
 
 	// Create the subscription if it doesn't exist yet
@@ -96,13 +98,14 @@ func (c *PubSub) CreateTopicAndSubscription(ctx context.Context) error {
 	return nil
 }
 
+// Publish publishes a message to the pubsub topic.
 func (c *PubSub) Publish(ctx context.Context, msg *Message) ([]string, error) {
 	m := &pubsub.Message{
 		Attributes: msg.Attributes,
 		Data:       msg.Data,
 	}
 
-	topic := c.Client.Topic(c.PubSubConfig.TopicName)
+	topic := c.Client.Topic(c.TopicConfig.TopicName)
 	defer topic.Stop()
 	result := topic.Publish(ctx, m)
 	msgIDs, err := result.Get(ctx)

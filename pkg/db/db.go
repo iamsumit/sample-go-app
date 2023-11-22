@@ -8,6 +8,7 @@ import (
 	_ "github.com/go-sql-driver/mysql" // MySQL driver
 )
 
+// The supported database type by this package.
 type DBType int
 
 const (
@@ -25,6 +26,7 @@ func (t DBType) String() string {
 	return "unknown"
 }
 
+// The configuration required to initiate a database connection.
 type Config struct {
 	Type     DBType
 	Name     string
@@ -34,6 +36,7 @@ type Config struct {
 	Host     string
 }
 
+// Initiate a database connection and retunrs the connection object.
 func Handler(config *Config) (*sql.DB, error) {
 	dsn := getDSN(config)
 
@@ -46,6 +49,7 @@ func Handler(config *Config) (*sql.DB, error) {
 	return db, nil
 }
 
+// Get the DSN string for the given database type.
 func getDSN(config *Config) string {
 	switch config.Type {
 	case MySQL:
@@ -55,6 +59,7 @@ func getDSN(config *Config) string {
 	return ""
 }
 
+// Get the MySQL DSN string.
 func getMySQLDSN(config *Config) string {
 	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", config.User, config.Password, config.Host, config.Port, config.Name)
 }
