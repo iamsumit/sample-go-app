@@ -5,16 +5,22 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/fsnotify/fsnotify"
-	"github.com/iamsumit/sample-go-app/pkg/config"
 	"github.com/iamsumit/sample-go-app/pkg/db"
 	"github.com/iamsumit/sample-go-app/pkg/logger"
+	"github.com/iamsumit/sample-go-app/pkg/metrics"
+	"github.com/iamsumit/sample-go-app/pkg/metrics/common"
+	"github.com/iamsumit/sample-go-app/sample/handler/config"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/viper"
 )
 
 var (
-	configuration config.Configuration
+	configuration  config.Configuration
+	RequestCounter common.Counter
+	LatencyCounter common.Counter
 )
 
 const (
@@ -40,6 +46,28 @@ func init() {
 		fmt.Println("Config file changed:", e.Name)
 		// ReadConfig(&configuration)
 	})
+
+	// -------------------------------------------------------------------
+	// Metrics
+	// -------------------------------------------------------------------
+	otelMetrics, err := metrics.New(&metrics.Config{
+		Name:     "sample",
+		Type:     metrics.Otel,
+		Exporter: metrics.Prometheus,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	RequestCounter, err = otelMetrics.NewCounter("sample_request_count", "Number of requests", "path", "method")
+	if err != nil {
+		panic(err)
+	}
+
+	LatencyCounter, err = otelMetrics.NewCounter("sample_latency", "Latency of each request", "path", "method")
+	if err != nil {
+		panic(err)
+	}
 }
 
 func main() {
@@ -98,6 +126,7 @@ func start() error {
 	// Routing
 	// -------------------------------------------------------------------
 	http.HandleFunc("/", helloWorldHandler)
+	http.Handle("/metrics", promhttp.Handler())
 	http.HandleFunc("/reload-config", reloadConfigHandler)
 	http.HandleFunc("/user/", userHandler)
 
@@ -123,6 +152,8 @@ func start() error {
 }
 
 func userHandler(w http.ResponseWriter, r *http.Request) {
+	RequestCounter.Record(r.Context(), 1, r.URL.Path, r.Method)
+	startTime := time.Now().UnixMilli()
 	// Split the URL path by '/'
 	parts := strings.Split(r.URL.Path, "/")
 
@@ -131,17 +162,22 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(uid)
 
 	fmt.Fprintf(w, "User: %v", id)
+	LatencyCounter.Record(r.Context(), float64(time.Now().UnixMilli()-startTime), r.URL.Path, r.Method)
 }
 
 func helloWorldHandler(w http.ResponseWriter, r *http.Request) {
-	// isEnabled := ldClient.ReadFlag(enablePrintFlagKey)
+	RequestCounter.Record(r.Context(), 1, r.URL.Path, r.Method)
+	startTime := time.Now().UnixMilli()
 
+	// isEnabled := ldClient.ReadFlag(enablePrintFlagKey)
 	enabled := "true"
 	// if !isEnabled {
 	// 	enabled = "false"
 	// }
 
 	fmt.Fprintf(w, "Pubsub Name: %s, %s; EnvVar: %s; Flag Enabled: %s", configuration.PubSub.Name, viper.Get("pubsub.name"), configuration.Environment.Env, enabled)
+	time.Sleep(1)
+	LatencyCounter.Record(r.Context(), float64(time.Now().UnixMilli()-startTime), r.URL.Path, r.Method)
 }
 
 func reloadConfigHandler(w http.ResponseWriter, r *http.Request) {

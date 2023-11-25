@@ -4,17 +4,17 @@ package logger
 type LoggerType int
 
 const (
-	Unknown LoggerType = iota
-	SLog    LoggerType = iota + 1
+	UnknownLogger LoggerType = iota
+	SLog          LoggerType = iota + 1
 )
 
 // The supported log format for this package.
 type LogFormatType int
 
 const (
-	Default LogFormatType = iota
-	Text    LogFormatType = iota + 1
-	JSON    LogFormatType = iota + 1
+	DefaultFormat LogFormatType = iota
+	Text          LogFormatType = iota + 1
+	JSON          LogFormatType = iota + 1
 )
 
 // The configuration required to initiate a logger object.

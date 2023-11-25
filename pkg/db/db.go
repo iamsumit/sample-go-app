@@ -12,8 +12,8 @@ import (
 type DBType int
 
 const (
-	Unknown DBType = iota
-	MySQL   DBType = iota + 1
+	UnknownDB DBType = iota
+	MySQL     DBType = iota + 1
 )
 
 // Or use enum generator package.

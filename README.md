@@ -17,6 +17,9 @@ I have tried following in the sample service:
 
 - [viper][4] package to read the configuration from yaml structure and to read the environment variables.
 - [launchdarky][5] package to try out the launch darky flag configuration.
+- [opentel][15] package is a go framework to export the metrics and traces to different services.
+- [prometheus][16] Prometheus is a powerful metrics collector and is used to try out the basic metrics collection.
+- [grafana][17] Grafana is a dashboarding and alerting tool to view the metrics from different sources by applying the different sets of conditions.
 
 ### Message:
 
@@ -56,7 +59,15 @@ There are certain task commands to run the applications. Lets go step by step:
 - `task sample:init`: To set the environment files.
 - `task sample:db-start`: To start the database container.
 - `task sample:run`: To start the application. A http process will start and once done, the application can be accessed via the `localhost:8080` where 8080 is the port number defined in the [config.yaml][3].
+- `task prometheus:start`: To start the prometheus server. There is a [prometheus.yml][18] file which contains the configuration to import the metrics from our local server. Please note that if you use a different port than `:8080` for your application, you would need to update the same in the yaml config.
+- `task grafana:start`: It is to start the grafana server. Once started, you can login using `admin/admin` and configure your dashboard. Please check the screenshots below to see the configuration.
+- `task grafana:stop`: To stop the grafana server.
+- `task prometheus:stop`: To stop the prometheus server.
 - `task sample:db-stop`: To stop the database container.
+
+![grafana datasource config](./docs/images/grafana-datasource-config.png)
+
+![grafana dashboard](./docs/images/grafana-dashboard.png)
 
 There are some commented code as well which is basically either because of no secret key and/or there are multiple way of doing things, like reloading the configuration on change without re-running the application.
 
@@ -74,3 +85,7 @@ There are some commented code as well which is basically either because of no se
 [12]:https://taskfile.dev/
 [13]:https://protobuf.dev/
 [14]:https://www.docker.com/get-started/
+[15]:https://github.com/open-telemetry/opentelemetry-go
+[16]:https://prometheus.io/
+[17]:https://grafana.com/
+[18]:./build/prometheus/prometheus.yml

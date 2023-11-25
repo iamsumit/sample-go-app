@@ -5,7 +5,8 @@ version: 3
 includes:
   sample: ./tasks/sample.yml
   message: ./tasks/message.yml
-
+  grafana: ./tasks/grafana.yml
+  prometheus: ./tasks/prometheus.yml
 
 tasks:
   setup-deps:
