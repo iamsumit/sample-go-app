@@ -6,6 +6,7 @@ type Configuration struct {
 	PubSub       PubSubConfig
 	MySQL        MySQLConfig
 	Environment  EnvironmentConfig
+	Jaeger       JaegerConfig
 }
 
 type HttpConfig struct {
@@ -35,4 +36,9 @@ type EnvironmentConfig struct {
 	Env      string
 	OtherEnv string
 	EmptyEnv string
+}
+
+type JaegerConfig struct {
+	Host string
+	Path string
 }

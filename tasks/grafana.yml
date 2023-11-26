@@ -6,14 +6,19 @@ includes:
   docker: ./docker.yml
 
 tasks:
-  start:
+  up:
     cmds:
       - task: docker:compose-up-single
         vars:
           SERVICE_NAME: grafana
 
-  stop:
+  down:
     cmds:
       - task: docker:compose-down-single
         vars:
           SERVICE_NAME: grafana
+
+  restart:
+    cmds:
+      - task: down
+      - task: up

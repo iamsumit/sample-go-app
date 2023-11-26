@@ -1,10 +1,9 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
@@ -12,7 +11,9 @@ import (
 	"github.com/iamsumit/sample-go-app/pkg/logger"
 	"github.com/iamsumit/sample-go-app/pkg/metrics"
 	"github.com/iamsumit/sample-go-app/pkg/metrics/common"
+	"github.com/iamsumit/sample-go-app/pkg/tracer"
 	"github.com/iamsumit/sample-go-app/sample/handler/config"
+	"github.com/iamsumit/sample-go-app/sample/handler/user"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/viper"
 )
@@ -71,12 +72,6 @@ func init() {
 }
 
 func main() {
-	if err := start(); err != nil {
-		panic(err)
-	}
-}
-
-func start() error {
 	// -------------------------------------------------------------------
 	// Logger
 	// -------------------------------------------------------------------
@@ -85,9 +80,16 @@ func start() error {
 		LogFormat:  logger.JSON,
 	})
 	if err != nil {
-		return err
+		panic(err)
 	}
 
+	if err := start(log); err != nil {
+		log.Error("failed to start application: %w", err)
+		panic(err)
+	}
+}
+
+func start(log logger.Logger) error {
 	// -------------------------------------------------------------------
 	// Database
 	// -------------------------------------------------------------------
@@ -123,12 +125,35 @@ func start() error {
 	// ldClient = launchdarkly.NewClient(configuration.LaunchDarkly.SecretKey)
 
 	// -------------------------------------------------------------------
+	// Tracer
+	// -------------------------------------------------------------------
+	otelTracer, err := tracer.New(context.Background(), &tracer.Config{
+		Name:        "sample",
+		ServiceName: "sample-go-app",
+		Jaeger: tracer.JaegerConfig{
+			Host: configuration.Jaeger.Host,
+			Path: configuration.Jaeger.Path,
+		},
+	})
+	if err != nil {
+		return err
+	}
+
+	// -------------------------------------------------------------------
+	// Routing Group Handler
+	// -------------------------------------------------------------------
+	userHandler, err := user.New(context.Background(), log, otelTracer)
+	if err != nil {
+		return err
+	}
+
+	// -------------------------------------------------------------------
 	// Routing
 	// -------------------------------------------------------------------
 	http.HandleFunc("/", helloWorldHandler)
 	http.Handle("/metrics", promhttp.Handler())
 	http.HandleFunc("/reload-config", reloadConfigHandler)
-	http.HandleFunc("/user/", userHandler)
+	http.HandleFunc("/user/", userHandler.GetUser)
 
 	// -------------------------------------------------------------------
 	// Server
@@ -149,20 +174,6 @@ func start() error {
 	}
 
 	return nil
-}
-
-func userHandler(w http.ResponseWriter, r *http.Request) {
-	RequestCounter.Record(r.Context(), 1, r.URL.Path, r.Method)
-	startTime := time.Now().UnixMilli()
-	// Split the URL path by '/'
-	parts := strings.Split(r.URL.Path, "/")
-
-	// Get the last part of the URL path
-	uid := parts[len(parts)-1]
-	id, _ := strconv.Atoi(uid)
-
-	fmt.Fprintf(w, "User: %v", id)
-	LatencyCounter.Record(r.Context(), float64(time.Now().UnixMilli()-startTime), r.URL.Path, r.Method)
 }
 
 func helloWorldHandler(w http.ResponseWriter, r *http.Request) {

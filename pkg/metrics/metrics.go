@@ -5,6 +5,7 @@ import (
 	"github.com/iamsumit/sample-go-app/pkg/metrics/internal/otel"
 )
 
+// ProviderType is an enum for the type of metrics provider to use.
 type ProviderType int
 
 const (
@@ -12,6 +13,7 @@ const (
 	Otel            ProviderType = iota + 1
 )
 
+// Exporter is an enum for the type of metrics exporter to use.
 type Exporter int
 
 const (
@@ -29,6 +31,7 @@ func (pt Exporter) String() string {
 	}
 }
 
+// Config is to configure the metrics provider.
 type Config struct {
 	Name     string
 	Type     ProviderType

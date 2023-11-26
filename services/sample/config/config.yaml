@@ -13,3 +13,6 @@ mysql:
   port: 8086
 launch_darkly:
   secret_key: some-secret-key
+jaeger:
+  host: "localhost:4318"
+  path: "/v1/traces"

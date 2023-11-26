@@ -10,13 +10,13 @@ tasks:
     cmds:
       - task: docker:compose-up-single
         vars:
-          SERVICE_NAME: prometheus
+          SERVICE_NAME: jaeger
 
   down:
     cmds:
       - task: docker:compose-down-single
         vars:
-          SERVICE_NAME: prometheus
+          SERVICE_NAME: jaeger
 
   restart:
     cmds:

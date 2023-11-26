@@ -7,6 +7,7 @@ includes:
   message: ./tasks/message.yml
   grafana: ./tasks/grafana.yml
   prometheus: ./tasks/prometheus.yml
+  jaeger: ./tasks/jaeger.yml
 
 tasks:
   setup-deps:

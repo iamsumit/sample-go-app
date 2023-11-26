@@ -23,13 +23,13 @@ tasks:
       DST_DIR: '../../pkg/pubsub'
     dir: ././services/message
 
-  pubsub-start:
+  pubsub-up:
     cmds:
       - task: docker:compose-up-single
         vars:
           SERVICE_NAME: pubsub
 
-  pubsub-stop:
+  pubsub-down:
     cmds:
       - task: docker:compose-down-single
         vars:

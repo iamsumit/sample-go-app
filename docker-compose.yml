@@ -43,3 +43,12 @@ services:
       - '--config.file=/etc/prometheus/prometheus.yml'
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
+  jaeger:
+    image: jaegertracing/all-in-one
+    container_name: sample_jaeger
+    ports:
+      - "16686:16686"
+      - "4318:4318"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true

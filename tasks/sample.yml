@@ -14,13 +14,13 @@ tasks:
       - cp .env.sample .env
     dir: ././services/sample
 
-  db-start:
+  db-up:
     cmds:
       - task: docker:compose-up-single
         vars:
           SERVICE_NAME: db
 
-  db-stop:
+  db-down:
     cmds:
       - task: docker:compose-down-single
         vars:
