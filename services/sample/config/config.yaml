@@ -1,5 +1,3 @@
-http:
-  port: 8080
 pubsub:
   name: sample-pubsub
   project: sample-go-app
@@ -9,10 +7,10 @@ mysql:
   name: sample_db
   user: user
   password: password
-  host: localhost
+  host: sample_db
   port: 8086
 launch_darkly:
   secret_key: some-secret-key
 jaeger:
-  host: "localhost:4318"
+  host: "sample_jaeger:4318"
   path: "/v1/traces"

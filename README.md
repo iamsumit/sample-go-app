@@ -50,23 +50,16 @@ There are certain task commands to run the applications. Lets go step by step:
 
 - `task message:setup-deps`: To install the `protobuf` dependency.
 - `task message:init`: To set the environment files and generate the code from proto definitions.
-- `task message:pubsub-up`: To start the pub/sub emulator as a docker container. Please note that this will run the foreground process, so you need to open a new tab for next commands. Keep it running please.
+- `task message:pubsub:up`: To start the pub/sub emulator as a docker container. Please note that this will run the foreground process, so you need to open a new tab for next commands. Keep it running please.
 - `task message:read`: This will create the topic and subscription if required and start reading to the pub/sub messages. This will also be a foreground process. Keep it running and open next tab please.
 -  `task message:publish`: It will generate a dummy message using [protobuf][13] and publish it to the local pub/sub emulator. The `read` command above will read the message and unmarshal it using `protobuf` library itself.
-- `task message:pubsub-down`: To stop the pubsub emulator docker container.
+- `task message:pubsub:down`: To stop the pubsub emulator docker container.
 
 #### Sample Application:
 
 - `task sample:init`: To set the environment files.
-- `task sample:db-up`: To start the database container.
-- `task sample:run`: To start the application. A http process will start and once done, the application can be accessed via the `localhost:8080` where 8080 is the port number defined in the [config.yaml][3].
-- `task prometheus:up`: To start the prometheus server. There is a [prometheus.yml][18] file which contains the configuration to import the metrics from our local server. Please note that if you use a different port than `:8080` for your application, you would need to update the same in the yaml config.
-- `task jaeger:up`: To start the jaeger service.
-- `task grafana:up`: It is to start the grafana server. Once started, you can login using `admin/admin` and configure your dashboard. Please check the screenshots below to see the configuration.
-- `task grafana:down`: To stop the grafana server.
-- `task jaeger:down`: To stop the jaeger service.
-- `task prometheus:down`: To stop the prometheus server.
-- `task sample:db-down`: To stop the database container.
+- `task sample:start`: To start the sample application and its dependent services which are database, jaeger, grafana and prometheus.
+- `task sample:stop`: To stop the database container and its dependent services.
 
 ![grafana datasource config](./docs/images/grafana-datasource-config.png)
 

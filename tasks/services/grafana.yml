@@ -3,22 +3,23 @@
 version: 3
 
 includes:
-  docker: ./docker.yml
+  docker: ../helper/docker.yml
 
 tasks:
   up:
     cmds:
-      - task: docker:compose-up-single
+      - task: docker:up
         vars:
           SERVICE_NAME: grafana
 
   down:
     cmds:
-      - task: docker:compose-down-single
+      - task: docker:down
         vars:
           SERVICE_NAME: grafana
 
   restart:
     cmds:
-      - task: down
-      - task: up
+      - task: docker:restart
+        vars:
+          SERVICE_NAME: grafana

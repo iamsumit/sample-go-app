@@ -1,16 +1,11 @@
 package config
 
 type Configuration struct {
-	Http         HttpConfig
 	LaunchDarkly LaunchDarklyConfig `mapstructure:"launch_darkly"`
 	PubSub       PubSubConfig
 	MySQL        MySQLConfig
 	Environment  EnvironmentConfig
 	Jaeger       JaegerConfig
-}
-
-type HttpConfig struct {
-	Port int
 }
 
 type LaunchDarklyConfig struct {

@@ -4,7 +4,6 @@ services:
     platform: linux/x86_64
     image: mysql:8
     container_name: sample_db
-    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_USER: user
@@ -31,6 +30,11 @@ services:
       - "3000:3000"
     volumes:
       - "./tmp/grafana:/var/lib/grafana"
+    depends_on:
+      prometheus:
+        condition: service_started
+      jaeger:
+        condition: service_started
 
   prometheus:
     image: prom/prometheus
@@ -43,6 +47,11 @@ services:
       - '--config.file=/etc/prometheus/prometheus.yml'
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    depends_on:
+      sample:
+        condition: service_started
+    links:
+      - sample
 
   jaeger:
     image: jaegertracing/all-in-one
@@ -52,3 +61,23 @@ services:
       - "4318:4318"
     environment:
       - COLLECTOR_OTLP_ENABLED=true
+
+  sample:
+    build:
+      context: ./build/sample
+      dockerfile: Dockerfile
+    container_name: sample_app
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./:/app
+    links:
+      - db
+      - jaeger
+    depends_on:
+      db:
+        condition: service_started
+      pubsub:
+        condition: service_started
+      jaeger:
+        condition: service_started

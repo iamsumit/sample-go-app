@@ -161,15 +161,14 @@ func start(log logger.Logger) error {
 	log.Info(
 		"Server is gettig started!",
 		"host", "localhost",
-		"port", configuration.Http.Port,
+		"port", "8080",
 	)
 
 	// -------------------------------------------------------------------
 	// Start the server
 	// -------------------------------------------------------------------
 
-	addr := fmt.Sprintf(":%d", configuration.Http.Port)
-	if err := http.ListenAndServe(addr, nil); err != nil {
+	if err := http.ListenAndServe(":8080", nil); err != nil {
 		return err
 	}
 

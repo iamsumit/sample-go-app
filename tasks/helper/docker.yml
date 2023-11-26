@@ -3,7 +3,7 @@
 version: 3
 
 tasks:
-  compose-up-single:
+  up:
     desc: "run docker compose up for a single service."
     cmds:
       - docker-compose -f {{ .COMPOSE_FILE }} up -d {{ .SERVICE_NAME }}
@@ -11,7 +11,7 @@ tasks:
       COMPOSE_FILE: '{{ default "docker-compose.yml" .COMPOSE_FILE }}'
       SERVICE_NAME: '{{ .SERVICE_NAME }}'
   
-  compose-down-single:
+  down:
     desc: "run docker compose up for a single service."
     cmds:
       - docker-compose -f {{ .COMPOSE_FILE }} down {{ .SERVICE_NAME }}
@@ -19,16 +19,10 @@ tasks:
       COMPOSE_FILE: '{{ default "docker-compose.yml" .COMPOSE_FILE }}'
       SERVICE_NAME: '{{ .SERVICE_NAME }}'
 
-  compose-down:
-    desc: "Execute docker-compose down command"
+  restart:
+    desc: "run docker compose restart for a single service."
     cmds:
-      - docker-compose -f {{ .COMPOSE_FILE }} down
+      - docker-compose -f {{ .COMPOSE_FILE }} restart {{ .SERVICE_NAME }}
     vars:
       COMPOSE_FILE: '{{ default "docker-compose.yml" .COMPOSE_FILE }}'
-
-  compose-up:
-    desc: "Execute docker-compose up command"
-    cmds:
-      - docker-compose -f {{ .COMPOSE_FILE }} up
-    vars:
-      COMPOSE_FILE: '{{ default "docker-compose.yml" .COMPOSE_FILE }}'
+      SERVICE_NAME: '{{ .SERVICE_NAME }}'

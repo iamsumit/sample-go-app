@@ -1,0 +1,25 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/taskfile.json
+version: 3
+
+includes:
+  docker: ../helper/docker.yml
+
+tasks:
+  up:
+    cmds:
+      - task: docker:up
+        vars:
+          SERVICE_NAME: db
+
+  down:
+    cmds:
+      - task: docker:down
+        vars:
+          SERVICE_NAME: db
+
+  restart:
+    cmds:
+      - task: docker:restart
+        vars:
+          SERVICE_NAME: db

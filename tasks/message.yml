@@ -3,7 +3,8 @@
 version: 3
 
 includes:
-  docker: ./docker.yml
+  docker: ./helper/docker.yml
+  pubsub: ./services/pubsub.yml
 
 tasks:
   setup-deps:
@@ -22,18 +23,6 @@ tasks:
       SRC_DIR: '../../definitions/message'
       DST_DIR: '../../pkg/pubsub'
     dir: ././services/message
-
-  pubsub-up:
-    cmds:
-      - task: docker:compose-up-single
-        vars:
-          SERVICE_NAME: pubsub
-
-  pubsub-down:
-    cmds:
-      - task: docker:compose-down-single
-        vars:
-          SERVICE_NAME: pubsub
 
   read:
     desc: "read the message in the message."

@@ -3,7 +3,11 @@
 version: 3
 
 includes:
-  docker: ./docker.yml
+  docker: ./helper/docker.yml
+  prometheus: ./services/prometheus.yml
+  jaeger: ./services/jaeger.yml
+  grafana: ./services/grafana.yml
+  db: ./services/db.yml
 
 tasks:
   init:
@@ -14,21 +18,52 @@ tasks:
       - cp .env.sample .env
     dir: ././services/sample
 
-  db-up:
-    cmds:
-      - task: docker:compose-up-single
-        vars:
-          SERVICE_NAME: db
-
-  db-down:
-    cmds:
-      - task: docker:compose-down-single
-        vars:
-          SERVICE_NAME: db
-
-  run:
+  up:
     desc: "Start the sample application."
-    dotenv: ['.env']
+    cmds:
+      - task: docker:up
+        vars:
+          SERVICE_NAME: sample
+
+  down:
+    desc: "Stop the sample application."
+    cmds:
+      - task: docker:down
+        vars:
+          SERVICE_NAME: sample
+
+  restart:
+    desc: "Restart the sample application."
+    cmds:
+      - task: docker:restart
+        vars:
+          SERVICE_NAME: sample
+  
+  run-local:
+    desc: "Start the sample application locally. For docker internals only."
+    dotenv: [.env]
     cmds:
       - go run main.go
+    dir: ././services/sample
+
+  start:
+    desc: "Start the sample application and its dependent services."
+    dotenv: ['.env']
+    cmds:
+      - task: db:up
+      - task: jaeger:up
+      - task: grafana:up
+      - task: up
+      - task: prometheus:up
+    dir: ././services/sample
+
+  stop:
+    desc: "Stop the sample application and its dependent services."
+    dotenv: ['.env']
+    cmds:
+      - task: down
+      - task: db:down
+      - task: grafana:down
+      - task: prometheus:down
+      - task: jaeger:down
     dir: ././services/sample
