@@ -12,8 +12,8 @@ import (
 	"github.com/iamsumit/sample-go-app/pkg/metrics"
 	"github.com/iamsumit/sample-go-app/pkg/metrics/common"
 	"github.com/iamsumit/sample-go-app/pkg/tracer"
-	"github.com/iamsumit/sample-go-app/sample/handler/config"
-	"github.com/iamsumit/sample-go-app/sample/handler/user"
+	"github.com/iamsumit/sample-go-app/sample/internal/config"
+	"github.com/iamsumit/sample-go-app/sample/internal/handler/user"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/viper"
 )
@@ -185,7 +185,7 @@ func helloWorldHandler(w http.ResponseWriter, r *http.Request) {
 	// 	enabled = "false"
 	// }
 
-	fmt.Fprintf(w, "Pubsub Name: %s, %s; EnvVar: %s; Flag Enabled: %s", configuration.PubSub.Name, viper.Get("pubsub.name"), configuration.Environment.Env, enabled)
+	fmt.Fprintf(w, "EnvVar: %s; Flag Enabled: %s", configuration.Environment.Env, enabled)
 	time.Sleep(1)
 	LatencyCounter.Record(r.Context(), float64(time.Now().UnixMilli()-startTime), r.URL.Path, r.Method)
 }
@@ -193,7 +193,7 @@ func helloWorldHandler(w http.ResponseWriter, r *http.Request) {
 func reloadConfigHandler(w http.ResponseWriter, r *http.Request) {
 	ReadConfig(&configuration)
 
-	fmt.Fprintf(w, "Config Reloaded. Pubsub Name: %s, %s", configuration.PubSub.Name, viper.Get("pubsub.name"))
+	fmt.Fprintf(w, "Config Reloaded.")
 }
 
 func ReadConfig(configuration *config.Configuration) {

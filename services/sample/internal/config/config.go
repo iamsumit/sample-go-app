@@ -2,7 +2,6 @@ package config
 
 type Configuration struct {
 	LaunchDarkly LaunchDarklyConfig `mapstructure:"launch_darkly"`
-	PubSub       PubSubConfig
 	MySQL        MySQLConfig
 	Environment  EnvironmentConfig
 	Jaeger       JaegerConfig
@@ -10,13 +9,6 @@ type Configuration struct {
 
 type LaunchDarklyConfig struct {
 	SecretKey string `mapstructure:"secret_key"`
-}
-
-type PubSubConfig struct {
-	Name         string
-	Project      string
-	Topic        string
-	Subscription string
 }
 
 type MySQLConfig struct {

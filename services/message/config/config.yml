@@ -1,0 +1,4 @@
+pubsub:
+  project: sample-go-app
+  topic: sample-topic
+  subscription: sample-subscription

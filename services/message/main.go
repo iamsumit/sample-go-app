@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/iamsumit/sample-go-app/pubsub/cmd"
+	"github.com/iamsumit/sample-go-app/message/cmd"
 )
 
 func main() {

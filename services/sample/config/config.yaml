@@ -1,8 +1,3 @@
-pubsub:
-  name: sample-pubsub
-  project: sample-go-app
-  topic: sample-topic
-  subscription: sample-subscription
 mysql:
   name: sample_db
   user: user
