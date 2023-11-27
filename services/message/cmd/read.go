@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	pbsbMsg "github.com/iamsumit/sample-go-app/pkg/pubsub/definitions/message"
+	api "github.com/iamsumit/sample-go-app/message/api/message"
 	"github.com/spf13/cobra"
 	"google.golang.org/protobuf/proto"
 )
@@ -20,7 +20,7 @@ func init() {
 
 func ReadMessage(cmd *cobra.Command, args []string) {
 	messageChannel := make(chan []byte)
-	message := pbsbMsg.Message{}
+	message := api.Message{}
 
 	go func() {
 		pubsubClient.SubscriptionConfig.ReceiveMessages(messageChannel)

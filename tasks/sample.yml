@@ -4,10 +4,10 @@ version: 3
 
 includes:
   docker: ./helper/docker.yml
-  prometheus: ./services/prometheus.yml
-  jaeger: ./services/jaeger.yml
-  grafana: ./services/grafana.yml
-  db: ./services/db.yml
+  prometheus: ./service/prometheus.yml
+  jaeger: ./service/jaeger.yml
+  grafana: ./service/grafana.yml
+  db: ./service/db.yml
 
 tasks:
   init:

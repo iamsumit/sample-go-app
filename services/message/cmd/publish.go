@@ -6,8 +6,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/golang/protobuf/proto"
+	api "github.com/iamsumit/sample-go-app/message/api/message"
 	pbsb "github.com/iamsumit/sample-go-app/pkg/pubsub"
-	pbsbMsg "github.com/iamsumit/sample-go-app/pkg/pubsub/definitions/message"
 )
 
 var publishCmd = &cobra.Command{
@@ -22,15 +22,15 @@ func init() {
 
 func PublishMessage(cmd *cobra.Command, args []string) {
 	// A sample message for VCS type.
-	message := pbsbMsg.Message{
-		Message: pbsbMsg.MessageType_VCS,
-		Vcs: &pbsbMsg.VCSMessage{
-			Type: pbsbMsg.VCSType_GITHUB,
-			Request: &pbsbMsg.PullRequest{
+	message := api.Message{
+		Message: api.MessageType_VCS,
+		Vcs: &api.VCSMessage{
+			Type: api.VCSType_GITHUB,
+			Request: &api.PullRequest{
 				Number: 1,
 				Title:  "Sample Pull Request",
-				Details: &pbsbMsg.PullRequest_Details{
-					Type:         pbsbMsg.PullRequest_OPENED,
+				Details: &api.PullRequest_Details{
+					Type:         api.PullRequest_OPENED,
 					SourceBranch: "source-branch",
 					DestBranch:   "dest-branch",
 				},
