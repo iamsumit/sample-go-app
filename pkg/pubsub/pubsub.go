@@ -4,29 +4,25 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 
 	"cloud.google.com/go/pubsub"
 )
 
-// PubSub is the GCLOUD PubSub implementation of the pubsub.Service Interface
-type PubSub struct {
-	Client             *pubsub.Client
-	TopicConfig        TopicConfig
-	SubscriptionConfig SubscriptionConfig
+// Handler is the GCLOUD PubSub implementation of the pubsub.Service Interface
+type Handler struct {
+	client *pubsub.Client
 }
 
-// TopicConfig for pubsub topic details
-type TopicConfig struct {
-	ProjectID string
-	TopicName string
+// Topic contains the topic client handler.
+type Topic struct {
+	client *pubsub.Topic
+	pbsb   *Handler
 }
 
-// SubscriptionConfig for pubsub subscription details
-type SubscriptionConfig struct {
-	SubscriptionName   string
-	Subscription       *pubsub.Subscription
-	CancelSubscription context.CancelFunc
+// Subscription contains the subscription client handler.
+type Subscription struct {
+	client             *pubsub.Subscription
+	cancelSubscription context.CancelFunc
 }
 
 // Message is the message that we will publish to pubsub
@@ -38,103 +34,72 @@ type Message struct {
 	Data json.RawMessage
 }
 
-// New creates a pubsub using GCE PubSub backend
-func New(ctx context.Context, projectID string, topicName string, subscriptionName string) (*PubSub, error) {
+// New creates a pubsub using GCE PubSub backend.
+func New(ctx context.Context, projectID string) (*Handler, error) {
 	client, err := pubsub.NewClient(ctx, projectID)
 	if err != nil {
-		return &PubSub{}, err
+		return nil, err
 	}
 
-	ps := PubSub{
-		Client: client,
-		TopicConfig: TopicConfig{
-			ProjectID: projectID,
-			TopicName: topicName,
-		},
-		SubscriptionConfig: SubscriptionConfig{
-			SubscriptionName:   subscriptionName,
-			CancelSubscription: nil,
-		},
+	ps := Handler{
+		client: client,
 	}
 
 	return &ps, nil
 }
 
-// CreateTopicAndSubscription creates a topic and subscription if they don't exist yet.
-func (c *PubSub) CreateTopicAndSubscription(ctx context.Context) error {
-	// Create a topic
-	topic := c.Client.Topic(c.TopicConfig.TopicName)
+// CreateTopic creates a topic if it don't exist yet.
+func (h *Handler) CreateTopic(ctx context.Context, topicName string) (*Topic, error) {
+	// Create a topic.
+	topic := h.client.Topic(topicName)
 	exists, err := topic.Exists(ctx)
 	if err != nil {
-		return fmt.Errorf("Error checking if topic exists: %v", err)
+		return nil, fmt.Errorf("Error checking if topic exists: %v", err)
 	}
 
 	if !exists {
-		_, err := c.Client.CreateTopic(ctx, c.TopicConfig.TopicName)
+		topic, err = h.client.CreateTopic(ctx, topicName)
 		if err != nil {
-			return fmt.Errorf("Error creating topic: %v", err)
+			return nil, fmt.Errorf("Error creating topic: %v", err)
 		}
 
-		fmt.Printf("Topic %s created\n", c.TopicConfig.TopicName)
+		fmt.Printf("Topic %s created\n", topicName)
 	} else {
-		fmt.Printf("Topic %s already exists\n", c.TopicConfig.TopicName)
+		fmt.Printf("Topic %s already exists\n", topicName)
 	}
 
-	// Create the subscription if it doesn't exist yet
-	subscription := c.Client.Subscription(c.SubscriptionConfig.SubscriptionName)
+	return &Topic{
+		client: topic,
+		pbsb:   h,
+	}, nil
+}
+
+// CreateSubscription creates a subscription if it don't exist yet.
+func (t *Topic) CreateSubscription(ctx context.Context, subscriptionName string) (*Subscription, error) {
+	subscription := t.pbsb.client.Subscription(subscriptionName)
 	found, err := subscription.Exists(ctx)
 	if err != nil {
-		return fmt.Errorf("unable to check if subscription [%s] exists: %v", c.SubscriptionConfig.SubscriptionName, err)
+		return nil, fmt.Errorf("unable to check if subscription [%s] exists: %v", subscriptionName, err)
 	}
 
 	if !found {
-		subscription, _ = c.Client.CreateSubscription(ctx, c.SubscriptionConfig.SubscriptionName, pubsub.SubscriptionConfig{
-			Topic: topic,
+		subscription, err = t.pbsb.client.CreateSubscription(ctx, subscriptionName, pubsub.SubscriptionConfig{
+			Topic: t.client,
 		})
+
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	c.SubscriptionConfig.Subscription = subscription
-
-	return nil
-}
-
-// Publish publishes a message to the pubsub topic.
-func (c *PubSub) Publish(ctx context.Context, msg *Message) ([]string, error) {
-	m := &pubsub.Message{
-		Attributes: msg.Attributes,
-		Data:       msg.Data,
-	}
-
-	topic := c.Client.Topic(c.TopicConfig.TopicName)
-	defer topic.Stop()
-	result := topic.Publish(ctx, m)
-	msgIDs, err := result.Get(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("publish failed, %w", err)
-	}
-
-	return []string{msgIDs}, nil
-}
-
-// ReceiveMessages receives and processes messages from the subscription.
-func (s *SubscriptionConfig) ReceiveMessages(messageChannel chan<- []byte) {
-	ctx := context.Background()
-
-	err := s.Subscription.Receive(ctx, func(ctx context.Context, msg *pubsub.Message) {
-		fmt.Printf("Received message: %s\n", msg.ID)
-		msg.Ack()
-
-		messageChannel <- msg.Data
-	})
-
-	if err != nil {
-		log.Fatalf("Error receiving messages: %v", err)
-	}
+	return &Subscription{
+		client: subscription,
+	}, nil
 }
 
 // Close closes the subscription.
-func (s *SubscriptionConfig) Close() {
-	if s.CancelSubscription != nil {
-		s.CancelSubscription()
+func (s *Subscription) Close() {
+	if s.cancelSubscription != nil {
+		s.cancelSubscription()
 	}
 }

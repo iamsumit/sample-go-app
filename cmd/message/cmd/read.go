@@ -8,11 +8,13 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-var readCmd = &cobra.Command{
-	Use:   "read",
-	Short: "Read the messages from topic",
-	Run:   ReadMessage,
-}
+var (
+	readCmd = &cobra.Command{
+		Use:   "read",
+		Short: "Read the messages from topic",
+		Run:   ReadMessage,
+	}
+)
 
 func init() {
 	rootCmd.AddCommand(readCmd)
@@ -23,7 +25,7 @@ func ReadMessage(cmd *cobra.Command, args []string) {
 	message := api.Message{}
 
 	go func() {
-		pubsubClient.SubscriptionConfig.ReceiveMessages(messageChannel)
+		subscription.ReceiveMessages(messageChannel)
 	}()
 
 	for {

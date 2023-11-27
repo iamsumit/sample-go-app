@@ -13,8 +13,11 @@ import (
 
 var (
 	ctx           context.Context
-	pubsubClient  *pbsb.PubSub
+	err           error
 	configuration config.Configuration
+	pbsbClient    *pbsb.Handler
+	topic         *pbsb.Topic
+	subscription  *pbsb.Subscription
 )
 
 func init() {
@@ -32,9 +35,14 @@ func init() {
 	ReadConfig(&configuration)
 
 	ctx = context.Background()
-	pubsubClient, _ = pbsb.New(ctx, configuration.PubSub.Project, configuration.PubSub.Topic, configuration.PubSub.Subscription)
+	pbsbClient, _ = pbsb.New(ctx, configuration.PubSub.Project)
 
-	err := pubsubClient.CreateTopicAndSubscription(ctx)
+	topic, err = pbsbClient.CreateTopic(ctx, configuration.PubSub.Topic)
+	if err != nil {
+		panic(err)
+	}
+
+	subscription, err = topic.CreateSubscription(ctx, configuration.PubSub.Subscription)
 	if err != nil {
 		panic(err)
 	}

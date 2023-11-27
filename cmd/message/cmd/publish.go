@@ -10,11 +10,13 @@ import (
 	pbsb "github.com/iamsumit/sample-go-app/pkg/pubsub"
 )
 
-var publishCmd = &cobra.Command{
-	Use:   "publish",
-	Short: "Publish the message",
-	Run:   PublishMessage,
-}
+var (
+	publishCmd = &cobra.Command{
+		Use:   "publish",
+		Short: "Publish the message",
+		Run:   PublishMessage,
+	}
+)
 
 func init() {
 	rootCmd.AddCommand(publishCmd)
@@ -39,7 +41,7 @@ func PublishMessage(cmd *cobra.Command, args []string) {
 	}
 
 	messageBytes, _ := proto.Marshal(&message)
-	msgs, _ := pubsubClient.Publish(ctx, &pbsb.Message{
+	msgs, _ := topic.Publish(ctx, &pbsb.Message{
 		Data: messageBytes,
 	})
 
