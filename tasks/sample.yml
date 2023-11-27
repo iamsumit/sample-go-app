@@ -16,7 +16,7 @@ tasks:
       - test -f .env
     cmds:
       - cp .env.sample .env
-    dir: ././services/sample
+    dir: ././cmd/sample
 
   up:
     desc: "Start the sample application."
@@ -44,7 +44,7 @@ tasks:
     dotenv: [.env]
     cmds:
       - go run main.go
-    dir: ././services/sample
+    dir: ././cmd/sample
 
   start:
     desc: "Start the sample application and its dependent services."
@@ -55,7 +55,7 @@ tasks:
       - task: grafana:up
       - task: up
       - task: prometheus:up
-    dir: ././services/sample
+    dir: ././cmd/sample
 
   stop:
     desc: "Stop the sample application and its dependent services."
@@ -66,4 +66,4 @@ tasks:
       - task: grafana:down
       - task: prometheus:down
       - task: jaeger:down
-    dir: ././services/sample
+    dir: ././cmd/sample

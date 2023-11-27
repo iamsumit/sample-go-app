@@ -22,18 +22,18 @@ tasks:
     vars:
       SRC_DIR: '../../api/message'
       DST_DIR: './'
-    dir: ././services/message
+    dir: ././cmd/message
 
   read:
     desc: "read the message in the message."
     dotenv: ['.env']
     cmds:
       - go run main.go read
-    dir: ././services/message
+    dir: ././cmd/message
 
   publish:
     desc: "Publish the message in the message."
     dotenv: ['.env']
     cmds:
       - go run main.go publish
-    dir: ././services/message
+    dir: ././cmd/message

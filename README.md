@@ -3,11 +3,11 @@
 This is my sample project to try out different things for my POC purposes.
 
 
-## Services:
+## Applications:
 
-There are two services at the moment of writing this README. The first one is sample, and another one is message. Both resides in the [services][1] directory.
+There are two applications at the moment of writing this README. The first one is sample, and another one is message. Both resides in the [cmd][1] directory.
 
-There is [pkg][2] directory as well which contains common packages to be used by the services.
+There is [pkg][2] directory as well which contains common packages to be used by the applications.
 
 Please note that this is not a showcase of go best practices. It just random code for my POC purpose.
 
@@ -67,9 +67,13 @@ There are certain task commands to run the applications. Lets go step by step:
 
 There are some commented code as well which is basically either because of no secret key and/or there are multiple way of doing things, like reloading the configuration on change without re-running the application.
 
-[1]:./services
+## More documentations:
+
+- [Directory Structure](./docs/directory.md)
+
+[1]:./cmd
 [2]:./pkg/
-[3]:./services/sample/config/config.yaml
+[3]:./cmd/sample/config/config.yaml
 [4]:https://github.com/spf13/viper
 [5]:https://github.com/launchdarkly/go-sdk-common
 [6]:https://github.com/spf13/cobra

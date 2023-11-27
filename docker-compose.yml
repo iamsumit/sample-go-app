@@ -29,7 +29,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - "./tmp/grafana:/var/lib/grafana"
+      - "./build/grafana/lib:/var/lib/grafana"
     depends_on:
       prometheus:
         condition: service_started
@@ -64,8 +64,8 @@ services:
 
   sample:
     build:
-      context: ./build/sample
-      dockerfile: Dockerfile
+      context: ./
+      dockerfile: Dockerfile.sample
     container_name: sample_app
     ports:
       - "8080:8080"
