@@ -89,7 +89,7 @@ func start() error {
 	// -------------------------------------------------------------------
 	// Database
 	// -------------------------------------------------------------------
-	sqlDB, err := db.Handler(&db.Config{
+	sqlDB, err := db.New(db.Config{
 		Type:     db.MySQL,
 		Name:     configuration.MySQL.Name,
 		User:     configuration.MySQL.User,

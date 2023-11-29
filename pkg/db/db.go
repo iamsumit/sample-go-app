@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 
@@ -9,15 +10,15 @@ import (
 )
 
 // The supported database type by this package.
-type DBType int
+type Type int
 
 const (
-	UnknownDB DBType = iota
-	MySQL     DBType = iota + 1
+	UnknownDB Type = iota
+	MySQL     Type = iota + 1
 )
 
 // Or use enum generator package.
-func (t DBType) String() string {
+func (t Type) String() string {
 	switch t {
 	case MySQL:
 		return "mysql"
@@ -28,7 +29,7 @@ func (t DBType) String() string {
 
 // The configuration required to initiate a database connection.
 type Config struct {
-	Type     DBType
+	Type     Type
 	Name     string
 	User     string
 	Password string
@@ -37,8 +38,11 @@ type Config struct {
 }
 
 // Initiate a database connection and retunrs the connection object.
-func Handler(config *Config) (*sql.DB, error) {
-	dsn := getDSN(config)
+func New(config Config) (*sql.DB, error) {
+	dsn, err := getDSN(config)
+	if err != nil {
+		return nil, err
+	}
 
 	db, err := sql.Open(config.Type.String(), dsn)
 	if err != nil {
@@ -50,16 +54,16 @@ func Handler(config *Config) (*sql.DB, error) {
 }
 
 // Get the DSN string for the given database type.
-func getDSN(config *Config) string {
+func getDSN(config Config) (string, error) {
 	switch config.Type {
 	case MySQL:
-		return getMySQLDSN(config)
+		return getMySQLDSN(config), nil
 	}
 
-	return ""
+	return "", errors.New("Unsupported database type")
 }
 
 // Get the MySQL DSN string.
-func getMySQLDSN(config *Config) string {
+func getMySQLDSN(config Config) string {
 	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", config.User, config.Password, config.Host, config.Port, config.Name)
 }
