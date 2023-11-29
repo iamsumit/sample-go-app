@@ -72,24 +72,20 @@ func init() {
 }
 
 func main() {
-	// -------------------------------------------------------------------
-	// Logger
-	// -------------------------------------------------------------------
-	log, err := logger.New(&logger.Config{
-		LoggerType: logger.SLog,
-		LogFormat:  logger.JSON,
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	if err := start(log); err != nil {
-		log.Error("failed to start application: %w", err)
+	if err := start(); err != nil {
 		panic(err)
 	}
 }
 
-func start(log logger.Logger) error {
+func start() error {
+	// -------------------------------------------------------------------
+	// Logger
+	// -------------------------------------------------------------------
+	log, err := logger.New(logger.WithSlogger(), logger.WithJSONFormat())
+	if err != nil {
+		panic(err)
+	}
+
 	// -------------------------------------------------------------------
 	// Database
 	// -------------------------------------------------------------------

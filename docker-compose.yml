@@ -77,7 +77,5 @@ services:
     depends_on:
       db:
         condition: service_started
-      pubsub:
-        condition: service_started
       jaeger:
         condition: service_started

@@ -1,51 +1,72 @@
 package logger
 
+import (
+	"github.com/iamsumit/sample-go-app/pkg/logger/internal/slog"
+)
+
 // The supported logger type by this package.
-type LoggerType int
+type Type int
 
 const (
-	UnknownLogger LoggerType = iota
-	SLog          LoggerType = iota + 1
+	UnknownType Type = iota
+	SLog        Type = iota + 1
 )
 
 // The supported log format for this package.
-type LogFormatType int
+type Format int
 
 const (
-	DefaultFormat LogFormatType = iota
-	Text          LogFormatType = iota + 1
-	JSON          LogFormatType = iota + 1
+	UnknownFormat Format = iota
+	Text          Format = iota + 1
+	JSON          Format = iota + 2
 )
+
+// We can use enum code generator here as well.
+func (lf Format) String() string {
+	switch lf {
+	case Text:
+		return "text"
+	case JSON:
+		return "json"
+	default:
+		return "json"
+	}
+}
 
 // The configuration required to initiate a logger object.
 type Config struct {
-	LoggerType LoggerType
-	LogFormat  LogFormatType
+	Type   Type
+	Format Format
 }
 
-// The logger interface implemented by all the loggers.
+// Logger is the interface for every logger to use.
 type Logger interface {
 	Info(string, ...interface{})
 	Warning(string, ...interface{})
 	Error(string, ...interface{})
 }
 
-// Get the logger object for the given logger type and format.
-func getLogger(config *Config) (Logger, error) {
-	switch config.LoggerType {
-	case SLog:
-		return getSLogLogger(config.LogFormat)
-	}
+// Option type to use the options pattern to set the configuration.
+type Option func(*Config)
 
-	return nil, nil
-}
+// New returns a new logger object by using the given options.
+func New(opts ...Option) (Logger, error) {
+	config := newConfig(opts...)
 
-// Initiate a logger object and returns it.
-func New(config *Config) (Logger, error) {
 	logger, err := getLogger(config)
 	if err != nil {
 		return nil, err
 	}
 
 	return logger, nil
+}
+
+// Get the logger object for the given logger type and format.
+func getLogger(config *Config) (Logger, error) {
+	switch config.Type {
+	case SLog:
+		return slog.New(config.Format.String())
+	}
+
+	return nil, nil
 }
