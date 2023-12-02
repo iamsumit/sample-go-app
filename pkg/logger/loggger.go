@@ -1,4 +1,4 @@
-package logger
+package logger // import "github.com/iamsumit/sample-go-app/pkg/logger"
 
 import (
 	"github.com/iamsumit/sample-go-app/pkg/logger/internal/slog"

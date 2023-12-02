@@ -1,4 +1,4 @@
-package launchdarkly
+package launchdarkly // import "github.com/iamsumit/sample-go-app/pkg/launchdarkly"
 
 import (
 	"fmt"

@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/fsnotify/fsnotify"
 	"github.com/iamsumit/sample-go-app/pkg/db"
 	"github.com/iamsumit/sample-go-app/pkg/logger"
 	"github.com/iamsumit/sample-go-app/pkg/metrics"
@@ -28,7 +27,22 @@ const (
 	enablePrintFlagKey = "enable-print-flag"
 )
 
-func init() {
+func main() {
+	// -------------------------------------------------------------------
+	// Logger
+	// -------------------------------------------------------------------
+	log, err := logger.New(logger.WithSlogger(), logger.WithJSONFormat())
+	if err != nil {
+		fmt.Println("Error while creating logger", err)
+		return
+	}
+
+	if err := start(log); err != nil {
+		log.Error("Error while starting the server", "error", err)
+	}
+}
+
+func start(log logger.Logger) error {
 	// -------------------------------------------------------------------
 	// Configurations
 	// -------------------------------------------------------------------
@@ -36,17 +50,21 @@ func init() {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath("./config")
-	// Watch the config file for changes.
-	viper.WatchConfig()
+
+	// Read through environment variable.
+	viper.SetEnvPrefix("SAMPLE")
+	viper.AutomaticEnv()
 
 	// Read the configuration on load.
-	ReadConfig(&configuration)
+	config.ReadConfig(&configuration)
 
+	// Watch the config file for changes.
+	// viper.WatchConfig()
 	// Read the configuration on every time config changes.
-	viper.OnConfigChange(func(e fsnotify.Event) {
-		fmt.Println("Config file changed:", e.Name)
-		// ReadConfig(&configuration)
-	})
+	// viper.OnConfigChange(func(e fsnotify.Event) {
+	// 	fmt.Println("Config file changed:", e.Name)
+	// 	config.ReadConfig(&configuration)
+	// })
 
 	// -------------------------------------------------------------------
 	// Metrics
@@ -57,33 +75,17 @@ func init() {
 		Exporter: metrics.Prometheus,
 	})
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	RequestCounter, err = otelMetrics.NewCounter("sample_request_count", "Number of requests", "path", "method")
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	LatencyCounter, err = otelMetrics.NewCounter("sample_latency", "Latency of each request", "path", "method")
 	if err != nil {
-		panic(err)
-	}
-}
-
-func main() {
-	if err := start(); err != nil {
-		panic(err)
-	}
-}
-
-func start() error {
-	// -------------------------------------------------------------------
-	// Logger
-	// -------------------------------------------------------------------
-	log, err := logger.New(logger.WithSlogger(), logger.WithJSONFormat())
-	if err != nil {
-		panic(err)
+		return err
 	}
 
 	// -------------------------------------------------------------------
@@ -181,35 +183,12 @@ func helloWorldHandler(w http.ResponseWriter, r *http.Request) {
 	// 	enabled = "false"
 	// }
 
-	fmt.Fprintf(w, "EnvVar: %s; Flag Enabled: %s", configuration.Environment.Env, enabled)
+	fmt.Fprintf(w, "EnvVar: %s Flag Enabled: %s", configuration.Environment.Env, enabled)
 	time.Sleep(1)
 	LatencyCounter.Record(r.Context(), float64(time.Now().UnixMilli()-startTime), r.URL.Path, r.Method)
 }
 
 func reloadConfigHandler(w http.ResponseWriter, r *http.Request) {
-	ReadConfig(&configuration)
-
+	config.ReadConfig(&configuration)
 	fmt.Fprintf(w, "Config Reloaded.")
-}
-
-func ReadConfig(configuration *config.Configuration) {
-	err := viper.ReadInConfig() // Find and read the config file
-	if err != nil {             // Handle errors reading the config file
-		panic(fmt.Errorf("fatal error config file: %w", err))
-	}
-
-	err = viper.Unmarshal(&configuration)
-	if err != nil {
-		fmt.Printf("Unable to decode into struct, %v", err)
-	}
-
-	// Enable VIPER to read Environment Variables
-	viper.BindEnv("env", "TEST_ENV")
-	viper.BindEnv("other_env", "TEST_OTHER_ENV")
-
-	// Read environment variables
-	configuration.Environment = config.EnvironmentConfig{
-		Env:      viper.GetString("env"),
-		OtherEnv: viper.GetString("other_env"),
-	}
 }
