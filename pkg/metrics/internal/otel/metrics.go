@@ -13,6 +13,7 @@ import (
 type Provider struct {
 	provider *metric.MeterProvider
 	meter    api.Meter
+	exporter string
 }
 
 // New returns a otel provider instance.
@@ -29,6 +30,7 @@ func New(name string, exporter string) (*Provider, error) {
 		return &Provider{
 			provider: provider,
 			meter:    provider.Meter(name),
+			exporter: exporter,
 		}, nil
 	}
 

@@ -61,11 +61,16 @@ func New(opts ...Option) (Logger, error) {
 	return logger, nil
 }
 
+// Default returns a default logger object.
+func Default() Logger {
+	return slog.New(JSON.String())
+}
+
 // Get the logger object for the given logger type and format.
 func getLogger(config *Config) (Logger, error) {
 	switch config.Type {
 	case SLog:
-		return slog.New(config.Format.String())
+		return slog.New(config.Format.String()), nil
 	}
 
 	return nil, nil

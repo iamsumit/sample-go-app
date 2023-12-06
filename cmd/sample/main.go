@@ -4,27 +4,19 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"time"
+	"os"
+	"os/signal"
+	"syscall"
 
+	"github.com/iamsumit/sample-go-app/pkg/api"
 	"github.com/iamsumit/sample-go-app/pkg/db"
 	"github.com/iamsumit/sample-go-app/pkg/logger"
 	"github.com/iamsumit/sample-go-app/pkg/metrics"
-	"github.com/iamsumit/sample-go-app/pkg/metrics/common"
 	"github.com/iamsumit/sample-go-app/pkg/tracer"
 	"github.com/iamsumit/sample-go-app/sample/internal/config"
-	"github.com/iamsumit/sample-go-app/sample/internal/handler/user"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/iamsumit/sample-go-app/sample/internal/handler/router"
+	pMetricsInt "github.com/iamsumit/sample-go-app/sample/internal/observation/metrics"
 	"github.com/spf13/viper"
-)
-
-var (
-	configuration  config.Configuration
-	RequestCounter common.Counter
-	LatencyCounter common.Counter
-)
-
-const (
-	enablePrintFlagKey = "enable-print-flag"
 )
 
 func main() {
@@ -37,6 +29,9 @@ func main() {
 		return
 	}
 
+	// -------------------------------------------------------------------
+	// Server
+	// -------------------------------------------------------------------
 	if err := start(log); err != nil {
 		log.Error("Error while starting the server", "error", err)
 	}
@@ -47,6 +42,8 @@ func start(log logger.Logger) error {
 	// Configurations
 	// -------------------------------------------------------------------
 
+	configuration := new(config.Configuration)
+
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath("./config")
@@ -56,20 +53,12 @@ func start(log logger.Logger) error {
 	viper.AutomaticEnv()
 
 	// Read the configuration on load.
-	config.ReadConfig(&configuration)
-
-	// Watch the config file for changes.
-	// viper.WatchConfig()
-	// Read the configuration on every time config changes.
-	// viper.OnConfigChange(func(e fsnotify.Event) {
-	// 	fmt.Println("Config file changed:", e.Name)
-	// 	config.ReadConfig(&configuration)
-	// })
+	config.ReadConfig(configuration)
 
 	// -------------------------------------------------------------------
 	// Metrics
 	// -------------------------------------------------------------------
-	otelMetrics, err := metrics.New(&metrics.Config{
+	mProvider, err := metrics.New(&metrics.Config{
 		Name:     "sample",
 		Type:     metrics.Otel,
 		Exporter: metrics.Prometheus,
@@ -78,12 +67,25 @@ func start(log logger.Logger) error {
 		return err
 	}
 
-	RequestCounter, err = otelMetrics.NewCounter("sample_request_count", "Number of requests", "path", "method")
+	// -------------------------------------------------------------------
+	// Tracer
+	// -------------------------------------------------------------------
+	_, err = tracer.New(context.Background(), &tracer.Config{
+		Name:        "sample",
+		ServiceName: "sample-go-app",
+		Jaeger: tracer.JaegerConfig{
+			Host: configuration.Jaeger.Host,
+			Path: configuration.Jaeger.Path,
+		},
+	})
 	if err != nil {
 		return err
 	}
 
-	LatencyCounter, err = otelMetrics.NewCounter("sample_latency", "Latency of each request", "path", "method")
+	// -------------------------------------------------------------------
+	// Observation:- Metrics
+	// -------------------------------------------------------------------
+	mInt, err := pMetricsInt.New("sample", pMetricsInt.WithMetricsProvider(mProvider))
 	if err != nil {
 		return err
 	}
@@ -117,78 +119,56 @@ func start(log logger.Logger) error {
 	)
 
 	// -------------------------------------------------------------------
-	// Launch Darkly
-	// -------------------------------------------------------------------
-
-	// ldClient = launchdarkly.NewClient(configuration.LaunchDarkly.SecretKey)
-
-	// -------------------------------------------------------------------
-	// Tracer
-	// -------------------------------------------------------------------
-	otelTracer, err := tracer.New(context.Background(), &tracer.Config{
-		Name:        "sample",
-		ServiceName: "sample-go-app",
-		Jaeger: tracer.JaegerConfig{
-			Host: configuration.Jaeger.Host,
-			Path: configuration.Jaeger.Path,
-		},
-	})
-	if err != nil {
-		return err
-	}
-
-	// -------------------------------------------------------------------
-	// Routing Group Handler
-	// -------------------------------------------------------------------
-	userHandler, err := user.New(context.Background(), log, otelTracer)
-	if err != nil {
-		return err
-	}
-
-	// -------------------------------------------------------------------
 	// Routing
 	// -------------------------------------------------------------------
-	http.HandleFunc("/", helloWorldHandler)
-	http.Handle("/metrics", promhttp.Handler())
-	http.HandleFunc("/reload-config", reloadConfigHandler)
-	http.HandleFunc("/user/", userHandler.GetUser)
+
+	shutdown := make(chan os.Signal, 1)
+	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
+
+	mw := make([]api.Middleware, 0)
+	mw = append(mw, mInt.Middleware(log))
+
+	handler := router.ConfigureRoutes(shutdown, mInt.Handler(), router.Config{
+		Log: log,
+		DB:  sqlDB,
+	}, mw...)
 
 	// -------------------------------------------------------------------
 	// Server
 	// -------------------------------------------------------------------
-	log.Info(
-		"Server is gettig started!",
-		"host", "localhost",
-		"port", "8080",
-	)
+
+	server := &http.Server{
+		Addr:    ":8080", // Set your desired port
+		Handler: handler,
+	}
+
+	serverErrors := make(chan error, 1)
+
+	go func() {
+		log.Info("startup.api", "status", "api router started", "host", server.Addr)
+		serverErrors <- server.ListenAndServe()
+	}()
 
 	// -------------------------------------------------------------------
-	// Start the server
+	// Signal handling
 	// -------------------------------------------------------------------
+	select {
+	case err := <-serverErrors:
+		fmt.Printf("server error: %v", err)
+	case sig := <-shutdown:
+		log.Info("shutdown", "status", "shutdown started", "signal", sig)
+		defer log.Info("shutdown", "status", "shutdown completed", "signal", sig)
 
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		return err
+		// Give outstanding requests a deadline for completion.
+		ctx, cancel := context.WithTimeout(context.Background(), viper.GetDuration("web.shutdownTimeout"))
+		defer cancel()
+
+		// Asking listener to shut down and shed load.
+		if err := server.Shutdown(ctx); err != nil {
+			_ = server.Close()
+			log.Error(err.Error())
+		}
 	}
 
 	return nil
-}
-
-func helloWorldHandler(w http.ResponseWriter, r *http.Request) {
-	RequestCounter.Record(r.Context(), 1, r.URL.Path, r.Method)
-	startTime := time.Now().UnixMilli()
-
-	// isEnabled := ldClient.ReadFlag(enablePrintFlagKey)
-	enabled := "true"
-	// if !isEnabled {
-	// 	enabled = "false"
-	// }
-
-	fmt.Fprintf(w, "EnvVar: %s Flag Enabled: %s", configuration.Environment.Env, enabled)
-	time.Sleep(1)
-	LatencyCounter.Record(r.Context(), float64(time.Now().UnixMilli()-startTime), r.URL.Path, r.Method)
-}
-
-func reloadConfigHandler(w http.ResponseWriter, r *http.Request) {
-	config.ReadConfig(&configuration)
-	fmt.Fprintf(w, "Config Reloaded.")
 }

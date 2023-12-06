@@ -12,7 +12,7 @@ type Handler struct {
 }
 
 // Returns the slog logger object for the given log format.
-func New(format string) (*Handler, error) {
+func New(format string) *Handler {
 	switch format {
 	case "text":
 		return getSLogTextLogger()
@@ -24,13 +24,13 @@ func New(format string) (*Handler, error) {
 }
 
 // Returns the slog logger object for the text log format.
-func getSLogTextLogger() (*Handler, error) {
+func getSLogTextLogger() *Handler {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
-	return &Handler{logger}, nil
+	return &Handler{logger}
 }
 
 // Returns the slog logger object for the JSON log format.
-func getSLogJSONLogger() (*Handler, error) {
+func getSLogJSONLogger() *Handler {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	return &Handler{logger}, nil
+	return &Handler{logger}
 }

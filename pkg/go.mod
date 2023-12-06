@@ -5,8 +5,10 @@ go 1.20
 require (
 	cloud.google.com/go/pubsub v1.33.0
 	github.com/go-sql-driver/mysql v1.7.1
+	github.com/gorilla/mux v1.8.1
 	github.com/launchdarkly/go-sdk-common/v3 v3.1.0
 	github.com/launchdarkly/go-server-sdk/v6 v6.1.1
+	github.com/prometheus/client_golang v1.17.0
 	go.opentelemetry.io/otel v1.21.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.21.0
 	go.opentelemetry.io/otel/exporters/prometheus v0.44.0
@@ -45,7 +47,6 @@ require (
 	github.com/mailru/easyjson v0.7.6 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
-	github.com/prometheus/client_golang v1.17.0 // indirect
 	github.com/prometheus/client_model v0.5.0 // indirect
 	github.com/prometheus/common v0.44.0 // indirect
 	github.com/prometheus/procfs v0.11.1 // indirect
