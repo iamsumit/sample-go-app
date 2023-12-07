@@ -8,8 +8,8 @@ import (
 	"time"
 )
 
-// SuccessResponse is the form used for API responses for success in the API.
-type SuccessResponse struct {
+// Response is the form used for API responses for success in the API.
+type Response struct {
 	// Success
 	//
 	Success bool `json:"success"`
@@ -41,11 +41,17 @@ func Respond(ctx context.Context, w http.ResponseWriter, data interface{}, statu
 		return err
 	}
 
-	r := SuccessResponse{
-		Success:   !v.IsError,
+	r := Response{
 		Status:    statusCode,
 		Timestamp: time.Now().UTC().Unix(),
-		Data:      data,
+	}
+
+	if !v.IsError {
+		r.Success = true
+		r.Data = data
+	} else {
+		r.Success = false
+		r.Errors = data
 	}
 
 	// Convert the response to json

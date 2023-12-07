@@ -9,18 +9,19 @@ import (
 
 	"github.com/iamsumit/sample-go-app/pkg/api"
 	"github.com/iamsumit/sample-go-app/pkg/logger"
+	"github.com/iamsumit/sample-go-app/sample/internal/handler/entitygrp/user/store"
 )
 
 // Handler holds the dependencies for the user handler.
 type Handler struct {
-	log logger.Logger
-	db  *sql.DB
+	log   logger.Logger
+	store *store.Handler
 }
 
 func New(log logger.Logger, db *sql.DB) *Handler {
 	return &Handler{
-		log: log,
-		db:  db,
+		log:   log,
+		store: store.New(db),
 	}
 }
 
@@ -41,8 +42,8 @@ func (h *Handler) GetByID(ctx context.Context, w http.ResponseWriter, r *http.Re
 
 // CreateUser creates a new user.
 func (h *Handler) CreateUser(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	user := new(User)
-	err := api.Decode(r, user)
+	newUser := store.NewUser{}
+	err := api.Decode(r, &newUser)
 	if err != nil {
 		h.log.Error(
 			"decoding error",
@@ -54,7 +55,12 @@ func (h *Handler) CreateUser(ctx context.Context, w http.ResponseWriter, r *http
 		return api.NewRequestError(errors.New("unable to decode payload"), http.StatusBadRequest)
 	}
 
-	// @todo add database integration with proper validation in place.
+	storeUser, err := h.store.Create(ctx, newUser)
+	if err != nil {
+		return err
+	}
+
+	user := new(User).UpdateFrom(*storeUser)
 
 	api.Respond(ctx, w, user, http.StatusOK)
 	return nil

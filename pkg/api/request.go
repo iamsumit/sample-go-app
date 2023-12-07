@@ -1,17 +1,15 @@
 package api
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/mitchellh/mapstructure"
 )
 
-// Decodable is an interface for types that can be decoded from JSON
-type Decodable interface {
-	DecodeJSON([]byte) error
-}
-
 // Decode decodes a JSON request body into the provided type
-func Decode(r *http.Request, d Decodable) error {
+func Decode(r *http.Request, d interface{}) error {
 	// Read the request body
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -19,5 +17,18 @@ func Decode(r *http.Request, d Decodable) error {
 	}
 	defer r.Body.Close()
 
-	return d.DecodeJSON(body)
+	// Decode JSON into a map[string]interface{}.
+	var data map[string]interface{}
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return err
+	}
+
+	// Use mapstructure to decode the map into the struct.
+	err = mapstructure.Decode(data, d)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

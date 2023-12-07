@@ -6,6 +6,7 @@ import (
 
 	"github.com/iamsumit/sample-go-app/pkg/api"
 	"github.com/iamsumit/sample-go-app/pkg/logger"
+	"github.com/iamsumit/sample-go-app/pkg/validator"
 )
 
 // Errors handles errors coming out of the call chain. It detects normal
@@ -30,18 +31,21 @@ func Errors(log logger.Logger) api.Middleware {
 				api.SetIsError(ctx)
 				var status int
 
+				// Create a new error response.
+				er := api.ErrorResponse{
+					Error: err.Error(),
+				}
+
 				// Check if this is a normal or a wrapped error.
 				switch err.(type) {
 				case *api.RequestError:
 					reqError, _ := err.(*api.RequestError)
 					status = reqError.Status
+				case validator.FieldErrors:
+					er.Fields = err.(validator.FieldErrors).FieldErrors()
+					status = http.StatusBadRequest
 				default:
 					status = http.StatusInternalServerError
-				}
-
-				// Create a new error response.
-				er := api.ErrorResponse{
-					Error: err.Error(),
 				}
 
 				// Respond with the error back to the client
@@ -52,7 +56,9 @@ func Errors(log logger.Logger) api.Middleware {
 
 			return nil
 		}
+
 		return h
 	}
+
 	return m
 }
