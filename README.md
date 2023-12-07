@@ -23,6 +23,7 @@ I have tried following in the sample service:
 - [jaeger][19] Jaeger is a distributed open source tracing platform with a good user interface.
 - [flyway][20] Flyway tool to handle the database migration.
 - [mux][21] Mux is used for request routing handler.
+- [traefik][22] Traefik provides a way for API management.
 
 ### Message:
 
@@ -95,3 +96,4 @@ There are some commented code as well which is basically either because of no se
 [19]:https://www.jaegertracing.io/docs/1.51/
 [20]:https://flywaydb.org/
 [21]:https://github.com/gorilla/mux
+[22]:https://doc.traefik.io/traefik

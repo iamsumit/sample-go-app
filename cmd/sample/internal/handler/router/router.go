@@ -1,6 +1,7 @@
 package router
 
 import (
+	"context"
 	"database/sql"
 	"net/http"
 	"os"
@@ -30,26 +31,32 @@ func ConfigureRoutes(shutdown chan os.Signal, mHandler api.Handler, cfg Config, 
 	// -------------------------------------------------------------------
 	// API Handler
 	// -------------------------------------------------------------------
-	api := api.New(shutdown, mw...)
+	a := api.New(shutdown, mw...)
+
+	// Provides home endpoint.
+	a.Handle(http.MethodGet, "/", func(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+		api.Respond(ctx, w, "Welcome to Sample API!", http.StatusOK)
+		return nil
+	})
 
 	// Provides metrics endpoint.
-	api.Handle(http.MethodGet, "/metrics", mHandler)
+	a.Handle(http.MethodGet, "/metrics", mHandler)
 
 	// -------------------------------------------------------------------
 	// V1 Routes
 	// -------------------------------------------------------------------
-	SetV1Routes(api, shutdown, cfg)
+	SetV1Routes(a, shutdown, cfg)
 
-	return api
+	return a
 }
 
 // SetV1Routes returns the http handler for the v1 routes.
-func SetV1Routes(api *api.API, shutdown chan os.Signal, cfg Config) {
+func SetV1Routes(a *api.API, shutdown chan os.Signal, cfg Config) {
 	// -------------------------------------------------------------------
 	// User Handler & Routes
 	// -------------------------------------------------------------------
 	userV1 := pUserV1.New(cfg.Log, cfg.DB)
 
-	api.Handle(http.MethodGet, "/v1/user/{id}", userV1.GetByID)
-	api.Handle(http.MethodPost, "/v1/user", userV1.CreateUser)
+	a.Handle(http.MethodGet, "/v1/user/{id}", userV1.GetByID)
+	a.Handle(http.MethodPost, "/v1/user", userV1.CreateUser)
 }

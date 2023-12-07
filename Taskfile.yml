@@ -5,6 +5,7 @@ version: 3
 includes:
   sample: ./tasks/sample.yml
   message: ./tasks/message.yml
+  traefik: ./tasks/service/traefik.yml
 
 tasks:
   setup-deps:
@@ -17,3 +18,15 @@ tasks:
     cmds:
       - task: sample:init
       - task: message:init
+
+  all:up:
+    desc: Start the applications with traefik API Gateway
+    cmds:
+      - task: sample:start
+      - task: traefik:up
+
+  all:down:
+    desc: Start the applications with traefik API Gateway
+    cmds:
+      - task: traefik:down
+      - task: sample:down

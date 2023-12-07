@@ -83,8 +83,28 @@ services:
     links:
       - db
       - jaeger
+    networks:
+      - default
     depends_on:
       db:
         condition: service_started
       jaeger:
         condition: service_started
+
+  traefik:
+    image: traefik:v2.10
+    container_name: sample_traefik
+    command:
+      - "--api.dashboard=true"
+      - "--api.insecure=true"
+      - "--providers.http=true"
+      - "--entrypoints.web.address=:80"
+      - "--log.level=INFO"
+    ports:
+      - "80:80"
+      - "8081:8080"
+    networks:
+      - default
+    volumes:
+      - ./build/traefik/traefik.yml:/etc/traefik/traefik.yml
+      - ./build/traefik/http.yml:/etc/traefik/config/http.yml

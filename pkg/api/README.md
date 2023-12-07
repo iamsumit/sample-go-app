@@ -18,14 +18,14 @@ More features will be added to it.
   mw = append(mw, middleware.Errors(cfg.Log))
 
   // API handler
-  api := api.New(shutdown, mw...)
+  a := api.New(shutdown, mw...)
 
   // Registering a route to get user by id.
-  api.Handle(http.MethodGet, "/v1/user/{id}", userV1.GetByID)
+  a.Handle(http.MethodGet, "/v1/user/{id}", userV1.GetByID)
   
   server := &http.Server{
     Addr:    ":8080", // Set your desired port
-    Handler: api,
+    Handler: a,
   }
 
   // Start the server

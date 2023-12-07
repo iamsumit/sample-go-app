@@ -1,0 +1,24 @@
+http:
+  routers:
+    dashboard:
+      rule: "PathPrefix(`/dashboard`)"
+    sample-router:
+      rule: "PathPrefix(`/api/sample`)"
+      service: sample-service
+      middlewares:
+        - stripprefix-sample
+    metrics:
+      rule: "PathPrefix(`/metrics`)"
+      service: api@internal
+
+  services:
+    sample-service:
+      loadBalancer:
+        servers:
+          - url: "http://sample_app:8080"
+
+  middlewares:
+    stripprefix-sample:
+      stripPrefix:
+        prefixes:
+          - "/api/sample"
