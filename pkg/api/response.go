@@ -13,6 +13,9 @@ type SuccessResponse struct {
 	// Success
 	//
 	Success bool `json:"success"`
+	// Status
+	//
+	Status int `json:"status"`
 	// Timestamp
 	//
 	// example: 1234567
@@ -27,15 +30,20 @@ type SuccessResponse struct {
 
 // Respond returns json to client
 func Respond(ctx context.Context, w http.ResponseWriter, data interface{}, statusCode int) error {
+	v, err := GetContextValues(ctx)
+	if err != nil {
+		return NewRequestError(err, http.StatusInternalServerError)
+	}
 
 	// Set the status code for the request logger middleware in the context.
-	err := SetStatusCode(ctx, statusCode)
+	err = SetStatusCode(ctx, statusCode)
 	if err != nil {
 		return err
 	}
 
 	r := SuccessResponse{
-		Success:   true,
+		Success:   !v.IsError,
+		Status:    statusCode,
 		Timestamp: time.Now().UTC().Unix(),
 		Data:      data,
 	}

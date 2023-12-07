@@ -1,5 +1,14 @@
 version: '3'
 services:
+  sample_migrator:
+    image: flyway/flyway:10.1
+    container_name: sample_flyway
+    command: -url=jdbc:mysql://db/sample_db?allowPublicKeyRetrieval=true -user=user -password=password -connectRetries=60 -connectRetriesInterval=2 migrate
+    volumes:
+      - ./data/migrations/sample:/flyway/sql
+    depends_on:
+      - db
+
   db:
     platform: linux/x86_64
     image: mysql:8

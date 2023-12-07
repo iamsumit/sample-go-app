@@ -27,13 +27,25 @@ func Errors(log logger.Logger) api.Middleware {
 			if err != nil {
 				log.Error("CLIENT ERROR", "error", err)
 
-				// @todo add error handling for different types of errors.
+				api.SetIsError(ctx)
+				var status int
+
+				// Check if this is a normal or a wrapped error.
+				switch err.(type) {
+				case *api.RequestError:
+					reqError, _ := err.(*api.RequestError)
+					status = reqError.Status
+				default:
+					status = http.StatusInternalServerError
+				}
+
+				// Create a new error response.
 				er := api.ErrorResponse{
 					Error: err.Error(),
 				}
 
 				// Respond with the error back to the client
-				if err := api.Respond(ctx, w, er, http.StatusInternalServerError); err != nil {
+				if err := api.Respond(ctx, w, er, status); err != nil {
 					return err
 				}
 			}

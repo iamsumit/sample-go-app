@@ -14,6 +14,7 @@ const key ctxKey = 1
 // ContextValues represent state for each request.
 type ContextValues struct {
 	StatusCode int
+	IsError    bool
 }
 
 // GetContextValues returns the values from the context.
@@ -32,5 +33,15 @@ func SetStatusCode(ctx context.Context, statusCode int) error {
 		return errors.New("api value missing from context")
 	}
 	v.StatusCode = statusCode
+	return nil
+}
+
+// SetIsError sets the error code back into the context.
+func SetIsError(ctx context.Context) error {
+	v, ok := ctx.Value(key).(*ContextValues)
+	if !ok {
+		return errors.New("api value missing from context")
+	}
+	v.IsError = true
 	return nil
 }

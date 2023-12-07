@@ -21,6 +21,8 @@ I have tried following in the sample service:
 - [prometheus][16] Prometheus is a powerful metrics collector and is used to try out the basic metrics collection.
 - [grafana][17] Grafana is a dashboarding and alerting tool to view the metrics from different sources by applying the different sets of conditions.
 - [jaeger][19] Jaeger is a distributed open source tracing platform with a good user interface.
+- [flyway][20] Flyway tool to handle the database migration.
+- [mux][21] Mux is used for request routing handler.
 
 ### Message:
 
@@ -58,6 +60,7 @@ There are certain task commands to run the applications. Lets go step by step:
 #### Sample Application:
 
 - `task sample:init`: To set the environment files.
+- `task sample:migrate`: To migrate the database.
 - `task sample:start`: To start the sample application and its dependent services which are database, jaeger, grafana and prometheus.
 - `task sample:stop`: To stop the database container and its dependent services.
 
@@ -90,3 +93,5 @@ There are some commented code as well which is basically either because of no se
 [17]:https://grafana.com/
 [18]:./build/prometheus/prometheus.yml
 [19]:https://www.jaegertracing.io/docs/1.51/
+[20]:https://flywaydb.org/
+[21]:https://github.com/gorilla/mux

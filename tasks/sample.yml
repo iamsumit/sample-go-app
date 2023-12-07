@@ -18,6 +18,15 @@ tasks:
       - cp .env.sample .env
     dir: ././cmd/sample
 
+  migrate:
+    desc: "Migrate the sample application's database."
+    deps:
+      - task: db:up
+    cmds:
+      - task: docker:up
+        vars:
+          SERVICE_NAME: sample_migrator
+
   up:
     desc: "Start the sample application."
     cmds:
