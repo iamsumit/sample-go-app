@@ -17,11 +17,11 @@ type User struct {
 
 // Settings represents the user settings.
 type Settings struct {
-	Email        *string    `json:"email"`
-	Biography    *string    `json:"biography"`
-	DateOfBirth  *time.Time `json:"date_of_birth"`
-	IsActive     bool       `json:"is_active"`
-	IsSubscribed bool       `json:"is_subscribed"`
+	Email        *string `json:"email"`
+	Biography    *string `json:"biography"`
+	DateOfBirth  *string `json:"date_of_birth"`
+	IsActive     *bool   `json:"is_active"`
+	IsSubscribed *bool   `json:"is_subscribed"`
 }
 
 // UpdateFrom takes the store user and updates the response user.

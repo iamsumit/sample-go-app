@@ -65,5 +65,5 @@ func getDSN(config Config) (string, error) {
 
 // Get the MySQL DSN string.
 func getMySQLDSN(config Config) string {
-	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", config.User, config.Password, config.Host, config.Port, config.Name)
+	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", config.User, config.Password, config.Host, config.Port, config.Name)
 }

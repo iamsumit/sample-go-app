@@ -3,7 +3,7 @@ mysql:
   user: user
   password: password
   host: sample_db
-  port: 8086
+  port: 3306
 launch_darkly:
   secret_key: some-secret-key
 jaeger:

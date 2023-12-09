@@ -109,6 +109,11 @@ func start(log logger.Logger) error {
 		_ = sqlDB.Close()
 	}()
 
+	// Test the connection
+	if err := sqlDB.Ping(); err != nil {
+		return err
+	}
+
 	// -------------------------------------------------------------------
 	// Database connection information
 	// -------------------------------------------------------------------

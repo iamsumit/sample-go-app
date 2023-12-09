@@ -1,3 +1,4 @@
 **/.env
 cmd/message/api
 build/grafana/lib
+build/mysql/lib

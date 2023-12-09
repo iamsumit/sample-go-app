@@ -9,6 +9,7 @@ import (
 
 	"github.com/iamsumit/sample-go-app/pkg/api"
 	"github.com/iamsumit/sample-go-app/pkg/logger"
+	"github.com/iamsumit/sample-go-app/pkg/validator"
 	"github.com/iamsumit/sample-go-app/sample/internal/handler/entitygrp/user/store"
 )
 
@@ -25,8 +26,8 @@ func New(log logger.Logger, db *sql.DB) *Handler {
 	}
 }
 
-// GetByID returns the user for the given id.
-func (h *Handler) GetByID(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+// ByID returns the user for the given id.
+func (h *Handler) ByID(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	id := api.Param(r, "id")
 
 	uid, err := strconv.Atoi(id)
@@ -34,15 +35,23 @@ func (h *Handler) GetByID(ctx context.Context, w http.ResponseWriter, r *http.Re
 		return api.NewRequestError(errors.New("invalid id"), http.StatusBadRequest)
 	}
 
-	user := User{ID: uid}
-	api.Respond(ctx, w, user, http.StatusOK)
+	storeUser, err := h.store.ByID(ctx, uid)
+	if err != nil {
+		return err
+	}
 
-	return nil
+	if storeUser != nil {
+		user := new(User).UpdateFrom(*storeUser)
+		api.Respond(ctx, w, user, http.StatusOK)
+		return nil
+	}
+
+	return api.NewRequestError(errors.New("user not found"), http.StatusNotFound)
 }
 
 // CreateUser creates a new user.
 func (h *Handler) CreateUser(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	newUser := store.NewUser{}
+	newUser := NewUser{}
 	err := api.Decode(r, &newUser)
 	if err != nil {
 		h.log.Error(
@@ -55,13 +64,27 @@ func (h *Handler) CreateUser(ctx context.Context, w http.ResponseWriter, r *http
 		return api.NewRequestError(errors.New("unable to decode payload"), http.StatusBadRequest)
 	}
 
-	storeUser, err := h.store.Create(ctx, newUser)
+	err = validator.Validate(newUser)
+	if err != nil {
+		return err
+	}
+
+	pTrue := true
+	storeUser, err := h.store.Create(ctx, store.User{
+		Name:     newUser.Name,
+		Email:    newUser.Email,
+		IsActive: &pTrue,
+		Settings: store.Settings{
+			IsSubscribed: &pTrue,
+			Biography:    newUser.Biography,
+			DateOfBirth:  newUser.DateOfBirth,
+		},
+	})
 	if err != nil {
 		return err
 	}
 
 	user := new(User).UpdateFrom(*storeUser)
-
 	api.Respond(ctx, w, user, http.StatusOK)
 	return nil
 }

@@ -31,6 +31,17 @@ func New() *Handler {
 	translator, _ := ut.New(en.New(), en.New()).GetTranslator("en")
 	_ = en_translations.RegisterDefaultTranslations(validate, translator)
 
+	// ---------------------------------------------------------
+	// Birth date validators
+	// ---------------------------------------------------------
+	validate.RegisterValidation("birthDate", BirthDateValidator)
+	validate.RegisterTranslation("birthDate", translator, func(ut ut.Translator) error {
+		return ut.Add("birthDate", "{0} is not a valid format", true)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T("birthDate", fe.Field())
+		return t
+	})
+
 	return &Handler{
 		v: validate,
 		t: translator,
@@ -38,7 +49,7 @@ func New() *Handler {
 }
 
 // Validate validates the given struct and returns an error if found.
-func Validate(val interface{}) error {
+func Validate(val interface{}) Error {
 	if err := h.v.Struct(val); err != nil {
 		// If the error is a validator error, convert it.
 		errs, ok := err.(validator.ValidationErrors)
@@ -59,7 +70,7 @@ func Validate(val interface{}) error {
 			fields.FieldError = append(fields.FieldError, field...)
 		}
 
-		return fields
+		return Error(fields)
 	}
 
 	return nil

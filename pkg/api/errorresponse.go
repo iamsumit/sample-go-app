@@ -9,7 +9,7 @@ type ErrorResponse struct {
 	// in:body
 	//
 	//example: {"field": "error message for this specific field"}
-	Fields map[string]string `json:"fields,omitempty"`
+	Data map[string]interface{} `json:"data,omitempty"`
 }
 
 // RequestError is used to pass an error during the request through the

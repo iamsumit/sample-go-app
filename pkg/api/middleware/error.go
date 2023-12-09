@@ -39,10 +39,9 @@ func Errors(log logger.Logger) api.Middleware {
 				// Check if this is a normal or a wrapped error.
 				switch err.(type) {
 				case *api.RequestError:
-					reqError, _ := err.(*api.RequestError)
-					status = reqError.Status
-				case validator.FieldErrors:
-					er.Fields = err.(validator.FieldErrors).FieldErrors()
+					status = err.(*api.RequestError).Status
+				case validator.Error:
+					er.Data = validator.Attributes(err)
 					status = http.StatusBadRequest
 				default:
 					status = http.StatusInternalServerError

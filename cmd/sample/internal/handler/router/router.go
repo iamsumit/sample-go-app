@@ -57,6 +57,6 @@ func SetV1Routes(a *api.API, shutdown chan os.Signal, cfg Config) {
 	// -------------------------------------------------------------------
 	userV1 := pUserV1.New(cfg.Log, cfg.DB)
 
-	a.Handle(http.MethodGet, "/v1/user/{id}", userV1.GetByID)
+	a.Handle(http.MethodGet, "/v1/user/{id}", userV1.ByID)
 	a.Handle(http.MethodPost, "/v1/user", userV1.CreateUser)
 }
