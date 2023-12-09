@@ -1,3 +1,7 @@
+// Package user provides the handler for the user entity.
+//
+// It can be used to retrieve and store user information by given methods.
+// It provides User model to be used to pass and retrieve user information.
 package user // import "github.com/iamsumit/sample-go-app/sample/internal/handler/entitygrp/user/v1"
 
 import (
@@ -19,6 +23,7 @@ type Handler struct {
 	store *store.Handler
 }
 
+// New returns a new user handler for v1 version of user routes.
 func New(log logger.Logger, db *sql.DB) *Handler {
 	return &Handler{
 		log:   log,
@@ -32,21 +37,22 @@ func (h *Handler) ByID(ctx context.Context, w http.ResponseWriter, r *http.Reque
 
 	uid, err := strconv.Atoi(id)
 	if err != nil {
-		return api.NewRequestError(errors.New("invalid id"), http.StatusBadRequest)
+		return api.NewRequestError(ErrInvalidID, http.StatusBadRequest)
 	}
 
 	storeUser, err := h.store.ByID(ctx, uid)
-	if err != nil {
+	if err != nil && !errors.Is(err, store.ErrUserNotFound) {
 		return err
 	}
 
-	if storeUser != nil {
-		user := new(User).UpdateFrom(*storeUser)
-		api.Respond(ctx, w, user, http.StatusOK)
-		return nil
+	if storeUser == nil {
+		return api.NewRequestError(ErrUserNotFound, http.StatusNotFound)
 	}
 
-	return api.NewRequestError(errors.New("user not found"), http.StatusNotFound)
+	user := new(User).UpdateFrom(*storeUser)
+	err = api.Respond(ctx, w, user, http.StatusOK)
+
+	return err
 }
 
 // CreateUser creates a new user.
@@ -61,7 +67,8 @@ func (h *Handler) CreateUser(ctx context.Context, w http.ResponseWriter, r *http
 			"endpoint", r.URL.Path,
 			"operation", "createUser",
 		)
-		return api.NewRequestError(errors.New("unable to decode payload"), http.StatusBadRequest)
+
+		return api.NewRequestError(ErrPayloadDecode, http.StatusBadRequest)
 	}
 
 	err = validator.Validate(newUser)
@@ -85,6 +92,7 @@ func (h *Handler) CreateUser(ctx context.Context, w http.ResponseWriter, r *http
 	}
 
 	user := new(User).UpdateFrom(*storeUser)
-	api.Respond(ctx, w, user, http.StatusOK)
-	return nil
+	err = api.Respond(ctx, w, user, http.StatusOK)
+
+	return err
 }

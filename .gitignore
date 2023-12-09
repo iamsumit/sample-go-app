@@ -2,3 +2,4 @@
 cmd/message/api
 build/grafana/lib
 build/mysql/lib
+.golangci.yml

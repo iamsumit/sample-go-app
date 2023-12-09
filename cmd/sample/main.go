@@ -1,3 +1,4 @@
+// Package main provides the main entry point for the application.
 package main
 
 import (
@@ -26,6 +27,7 @@ func main() {
 	log, err := logger.New(logger.WithSlogger(), logger.WithJSONFormat())
 	if err != nil {
 		fmt.Println("Error while creating logger", err)
+
 		return
 	}
 
@@ -37,13 +39,11 @@ func main() {
 	}
 }
 
+//nolint:funlen
 func start(log logger.Logger) error {
 	// -------------------------------------------------------------------
 	// Configurations
 	// -------------------------------------------------------------------
-
-	configuration := new(config.Configuration)
-
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath("./config")
@@ -53,7 +53,7 @@ func start(log logger.Logger) error {
 	viper.AutomaticEnv()
 
 	// Read the configuration on load.
-	config.ReadConfig(configuration)
+	configuration := config.ReadConfig()
 
 	// -------------------------------------------------------------------
 	// Metrics
@@ -170,8 +170,9 @@ func start(log logger.Logger) error {
 
 		// Asking listener to shut down and shed load.
 		if err := server.Shutdown(ctx); err != nil {
-			_ = server.Close()
 			log.Error(err.Error())
+
+			_ = server.Close()
 		}
 	}
 

@@ -1,3 +1,6 @@
+// Package router provides the router for the application.
+//
+// It can be used to add all the possible routes for the application.
 package router
 
 import (
@@ -9,7 +12,6 @@ import (
 	"github.com/iamsumit/sample-go-app/pkg/api"
 	"github.com/iamsumit/sample-go-app/pkg/api/middleware"
 	"github.com/iamsumit/sample-go-app/pkg/logger"
-
 	pUserV1 "github.com/iamsumit/sample-go-app/sample/internal/handler/entitygrp/user/v1"
 )
 
@@ -21,7 +23,6 @@ type Config struct {
 
 // ConfigureRoutes configures the routes for the application.
 func ConfigureRoutes(shutdown chan os.Signal, mHandler api.Handler, cfg Config, mw ...api.Middleware) http.Handler {
-
 	// -------------------------------------------------------------------
 	// Middlewares
 	// -------------------------------------------------------------------
@@ -35,8 +36,9 @@ func ConfigureRoutes(shutdown chan os.Signal, mHandler api.Handler, cfg Config, 
 
 	// Provides home endpoint.
 	a.Handle(http.MethodGet, "/", func(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-		api.Respond(ctx, w, "Welcome to Sample API!", http.StatusOK)
-		return nil
+		err := api.Respond(ctx, w, "Welcome to Sample Go App!", http.StatusOK)
+
+		return err
 	})
 
 	// Provides metrics endpoint.
@@ -45,13 +47,13 @@ func ConfigureRoutes(shutdown chan os.Signal, mHandler api.Handler, cfg Config, 
 	// -------------------------------------------------------------------
 	// V1 Routes
 	// -------------------------------------------------------------------
-	SetV1Routes(a, shutdown, cfg)
+	SetV1Routes(a, cfg)
 
 	return a
 }
 
 // SetV1Routes returns the http handler for the v1 routes.
-func SetV1Routes(a *api.API, shutdown chan os.Signal, cfg Config) {
+func SetV1Routes(a *api.API, cfg Config) {
 	// -------------------------------------------------------------------
 	// User Handler & Routes
 	// -------------------------------------------------------------------

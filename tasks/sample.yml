@@ -4,6 +4,7 @@ version: 3
 
 includes:
   docker: ./helper/docker.yml
+  go: ./helper/golang.yml
   prometheus: ./service/prometheus.yml
   jaeger: ./service/jaeger.yml
   grafana: ./service/grafana.yml
@@ -16,7 +17,7 @@ tasks:
       - test -f .env
     cmds:
       - cp .env.sample .env
-    dir: ./cmd/sample
+    dir: '{{ .SAMPLE_APP_DIR }}'
 
   migrate:
     desc: "Migrate the sample application's database."
@@ -47,13 +48,24 @@ tasks:
       - task: docker:restart
         vars:
           SERVICE_NAME: sample
-  
+
+  go-checks:
+    desc: "To run all the code checks for the sample application."
+    cmds:
+      - task: go:vet
+        vars:
+          GO_PROJECT_FOLDER: '{{ .SAMPLE_APP_DIR }}'
+      - task: go:lint
+        vars:
+          GO_PROJECT_FOLDER: '{{ .SAMPLE_APP_DIR }}'
+    dir: '{{ .SAMPLE_APP_DIR }}'
+
   run-local:
     desc: "Start the sample application locally. For docker internals only."
     dotenv: [.env]
     cmds:
       - go run main.go
-    dir: ./cmd/sample
+    dir: '{{ .SAMPLE_APP_DIR }}'
 
   start:
     desc: "Start the sample application and its dependent services."
@@ -64,7 +76,7 @@ tasks:
       - task: grafana:up
       - task: up
       - task: prometheus:up
-    dir: ./cmd/sample
+    dir: '{{ .SAMPLE_APP_DIR }}'
 
   stop:
     desc: "Stop the sample application and its dependent services."
@@ -75,4 +87,4 @@ tasks:
       - task: grafana:down
       - task: prometheus:down
       - task: jaeger:down
-    dir: ./cmd/sample
+    dir: '{{ .SAMPLE_APP_DIR }}'

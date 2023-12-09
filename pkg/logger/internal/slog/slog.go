@@ -6,7 +6,7 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-// The SLog handler uses the slog package and implementes the Logger interface.
+// The SLog handler uses the slog package and implements the Logger interface.
 type Handler struct {
 	logger *slog.Logger
 }

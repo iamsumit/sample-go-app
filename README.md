@@ -44,19 +44,9 @@ There are certain dependencies that we have to install first before we can run t
 - [task][12] to use the application provided commands to use the application.
 - [protobuf][13] though, it can be installed using task command.
 - [docker][14] The pub/sub and mysql will be running inside the docker container.
+- [golang-lint][23] This is a tool to check the linting errors.
 
 ### Start the application
-
-#### Message Application:
-
-There are certain task commands to run the applications. Lets go step by step:
-
-- `task message:setup-deps`: To install the `protobuf` dependency.
-- `task message:init`: To set the environment files and generate the code from proto definitions.
-- `task message:pubsub:up`: To start the pub/sub emulator as a docker container. Please note that this will run the foreground process, so you need to open a new tab for next commands. Keep it running please.
-- `task message:read`: This will create the topic and subscription if required and start reading to the pub/sub messages. This will also be a foreground process. Keep it running and open next tab please.
--  `task message:publish`: It will generate a dummy message using [protobuf][13] and publish it to the local pub/sub emulator. The `read` command above will read the message and unmarshal it using `protobuf` library itself.
-- `task message:pubsub:down`: To stop the pubsub emulator docker container.
 
 #### Sample Application:
 
@@ -70,6 +60,17 @@ There are certain task commands to run the applications. Lets go step by step:
 ![grafana dashboard](./docs/images/grafana-dashboard.png)
 
 There are some commented code as well which is basically either because of no secret key and/or there are multiple way of doing things, like reloading the configuration on change without re-running the application.
+
+#### Message Application:
+
+There are certain task commands to run the applications. Lets go step by step:
+
+- `task message:setup-deps`: To install the `protobuf` dependency.
+- `task message:init`: To set the environment files and generate the code from proto definitions.
+- `task message:pubsub:up`: To start the pub/sub emulator as a docker container. Please note that this will run the foreground process, so you need to open a new tab for next commands. Keep it running please.
+- `task message:read`: This will create the topic and subscription if required and start reading to the pub/sub messages. This will also be a foreground process. Keep it running and open next tab please.
+-  `task message:publish`: It will generate a dummy message using [protobuf][13] and publish it to the local pub/sub emulator. The `read` command above will read the message and unmarshal it using `protobuf` library itself.
+- `task message:pubsub:down`: To stop the pubsub emulator docker container.
 
 ## More documentations:
 
@@ -97,3 +98,4 @@ There are some commented code as well which is basically either because of no se
 [20]:https://flywaydb.org/
 [21]:https://github.com/gorilla/mux
 [22]:https://doc.traefik.io/traefik
+[23]:https://github.com/golangci/golangci-lint

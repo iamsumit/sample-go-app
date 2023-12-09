@@ -1,3 +1,7 @@
+// Package metrics provides the metrics handler.
+//
+// It can be used to add metrics for the application.
+// It provides Handler to be used to show metrics details.
 package metrics
 
 import (
@@ -21,7 +25,10 @@ func New(name string, opts ...Option) (*Handler, error) {
 		return nil, err
 	}
 
-	m.counter()
+	err = m.counter()
+	if err != nil {
+		return nil, err
+	}
 
 	return m, nil
 }

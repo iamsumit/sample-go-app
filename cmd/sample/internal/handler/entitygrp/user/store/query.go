@@ -3,13 +3,16 @@ package store
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/Masterminds/squirrel"
 )
 
 // ByID returns the user for the given id.
-func (h *Handler) ByID(ctx context.Context, id int) (*User, error) {
+//
+//nolint:dupl
+func (h *Handler) ByID(_ context.Context, id int) (*User, error) {
 	query, args, err := squirrel.
 		Select(
 			"users.id",
@@ -46,9 +49,10 @@ func (h *Handler) ByID(ctx context.Context, id int) (*User, error) {
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
+
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, nil
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrUserNotFound
 		}
 
 		return nil, fmt.Errorf("ByID: unable to query data: %w", err)
@@ -58,7 +62,9 @@ func (h *Handler) ByID(ctx context.Context, id int) (*User, error) {
 }
 
 // ByEmail returns the user for the given email.
-func (h *Handler) ByEmail(ctx context.Context, email string) (*User, error) {
+//
+//nolint:dupl
+func (h *Handler) ByEmail(_ context.Context, email string) (*User, error) {
 	query, args, err := squirrel.
 		Select(
 			"users.id",
@@ -79,7 +85,6 @@ func (h *Handler) ByEmail(ctx context.Context, email string) (*User, error) {
 				squirrel.Eq{"users.deleted_at": nil},
 			},
 		).ToSql()
-
 	if err != nil {
 		return nil, fmt.Errorf("ByEmail: unable to build select query: %w", err)
 	}
@@ -98,8 +103,8 @@ func (h *Handler) ByEmail(ctx context.Context, email string) (*User, error) {
 	)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, nil
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrUserNotFound
 		}
 
 		return nil, fmt.Errorf("ByEmail: unable to query data: %w", err)
@@ -113,12 +118,12 @@ func (h *Handler) Create(ctx context.Context, user User) (*User, error) {
 	if user.Email != nil {
 		// If email is provided, it must be unique.
 		existingUser, err := h.ByEmail(ctx, *user.Email)
-		if err != nil {
+		if err != nil && !errors.Is(err, ErrUserNotFound) {
 			return nil, err
 		}
 
 		if existingUser != nil {
-			return nil, ErrorDuplicateEmail
+			return nil, ErrDuplicateEmail
 		}
 	}
 

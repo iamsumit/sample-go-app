@@ -14,7 +14,7 @@ func (c Counter) Record(ctx context.Context, incr float64, labelValues ...string
 
 // labeler takes a list of keys and a list of values and returns a list of attribute values of the same length as keys
 // and each element having a Key equal to key[i] and Value as a string equal to v[i] or the empty string if v[i] is
-// out of bounds
+// out of bounds.
 func labeler(keys, values []string) []attribute.KeyValue {
 	out := make([]attribute.KeyValue, 0, len(keys))
 

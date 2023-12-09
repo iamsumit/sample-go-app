@@ -6,6 +6,11 @@ includes:
   sample: ./tasks/sample.yml
   message: ./tasks/message.yml
   traefik: ./tasks/service/traefik.yml
+  go: ./tasks/helper/golang.yml
+
+vars:
+  SAMPLE_APP_DIR: ./cmd/sample
+  PKG_DIR: ./pkg
 
 tasks:
   setup-deps:
@@ -30,3 +35,19 @@ tasks:
     cmds:
       - task: traefik:down
       - task: sample:down
+
+  go-checks:
+    desc: "To run all the code checks for the sample application."
+    cmds:
+      - task: go:vet
+        vars:
+          GO_PROJECT_FOLDER: '{{ .SAMPLE_APP_DIR }}'
+      - task: go:lint
+        vars:
+          GO_PROJECT_FOLDER: '{{ .SAMPLE_APP_DIR }}'
+      - task: go:vet
+        vars:
+          GO_PROJECT_FOLDER: '{{ .PKG_DIR }}'
+      - task: go:lint
+        vars:
+          GO_PROJECT_FOLDER: '{{ .PKG_DIR }}'

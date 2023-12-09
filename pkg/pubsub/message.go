@@ -35,7 +35,6 @@ func (s *Subscription) ReceiveMessages(messageChannel chan<- []byte) {
 
 		messageChannel <- msg.Data
 	})
-
 	if err != nil {
 		log.Fatalf("Error receiving messages: %v", err)
 	}

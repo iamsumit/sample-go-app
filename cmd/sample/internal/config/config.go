@@ -1,3 +1,6 @@
+// Package config provides the configuration for the application.
+//
+// It also provides method to read and unmarshal the config in the config object.
 package config
 
 import (
@@ -6,54 +9,49 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Configuration holds the configuration for the application.
 type Configuration struct {
 	LaunchDarkly LaunchDarklyConfig `mapstructure:"launch_darkly"`
-	MySQL        MySQLConfig
-	Environment  EnvironmentConfig
-	Jaeger       JaegerConfig
+	MySQL        MySQLConfig        `mapstructure:"mysql"`
+	Jaeger       JaegerConfig       `mapstructure:"jaeger"`
+	Env          string             `mapstructure:"env"`
+	OtherEnv     string             `mapstructure:"other_env"`
 }
 
+// LaunchDarklyConfig holds the configuration for the launch darkly.
 type LaunchDarklyConfig struct {
 	SecretKey string `mapstructure:"secret_key"`
 }
 
+// MySQLConfig holds the configuration for the MySQL.
 type MySQLConfig struct {
-	Name     string
-	User     string
-	Password string
-	Host     string
-	Port     int
+	Name     string `mapstructure:"name"`
+	User     string `mapstructure:"user"`
+	Password string `mapstructure:"password"`
+	Host     string `mapstructure:"host"`
+	Port     int    `mapstructure:"port"`
 }
 
-type EnvironmentConfig struct {
-	Env      string
-	OtherEnv string
-	EmptyEnv string
-}
-
+// JaegerConfig holds the configuration for the Jaeger.
 type JaegerConfig struct {
-	Host string
-	Path string
+	Host string `mapstructure:"host"`
+	Path string `mapstructure:"path"`
 }
 
-func ReadConfig(configuration *Configuration) {
+// ReadConfig reads the configuration from the config file and environment variables.
+func ReadConfig() *Configuration {
+	c := new(Configuration)
+
+	viper.AutomaticEnv()
 	err := viper.ReadInConfig() // Find and read the config file
 	if err != nil {             // Handle errors reading the config file
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
 
-	err = viper.Unmarshal(&configuration)
+	err = viper.Unmarshal(c)
 	if err != nil {
 		fmt.Printf("Unable to decode into struct, %v", err)
 	}
 
-	// Enable VIPER to read Environment Variables
-	viper.BindEnv("env", "ENV")
-	viper.BindEnv("other_env", "OTHER_ENV")
-
-	// Read environment variables
-	configuration.Environment = EnvironmentConfig{
-		Env:      viper.GetString("env"),
-		OtherEnv: viper.GetString("other_env"),
-	}
+	return c
 }

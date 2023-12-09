@@ -13,7 +13,6 @@ import (
 func (m *Handler) Middleware(log logger.Logger) api.Middleware {
 	// This is the actual middleware function to be executed.
 	mw := func(handler api.Handler) api.Handler {
-
 		// Create the handler that will be attached in the middleware chain.
 		h := func(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 			log.Info(
@@ -42,8 +41,10 @@ func (m *Handler) Middleware(log logger.Logger) api.Middleware {
 				"remote_addr", r.RemoteAddr,
 				"user_agent", r.UserAgent(),
 			)
+
 			return nil
 		}
+
 		return h
 	}
 

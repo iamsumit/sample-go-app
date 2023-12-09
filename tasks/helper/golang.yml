@@ -1,0 +1,16 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/taskfile.json
+version: 3
+
+tasks:
+  lint:
+    desc: Run golangci-lint in the current folder.
+    dir: "{{ .GO_PROJECT_FOLDER }}"
+    cmds:
+      - golangci-lint run -E goimports -v
+
+  vet:
+    desc: Run go vet in the current folder.
+    dir: "{{ .GO_PROJECT_FOLDER }}"
+    cmds:
+      - go vet ./...

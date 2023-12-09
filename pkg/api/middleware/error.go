@@ -12,10 +12,8 @@ import (
 // Errors handles errors coming out of the call chain. It detects normal
 // application errors which are used to respond to the client in a uniform way.
 func Errors(log logger.Logger) api.Middleware {
-
 	// This is the actual middleware function to be executed.
 	m := func(handler api.Handler) api.Handler {
-
 		// Create the handler that will be attached in the middleware chain.
 		h := func(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 			_, err := api.GetContextValues(ctx)

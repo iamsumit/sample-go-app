@@ -1,3 +1,7 @@
+// Package store provides the database support for the user entity.
+//
+// It can be used to retrieve and store user information by given methods.
+// It provides User model to be used to pass and retrieve user information.
 package store
 
 import "database/sql"

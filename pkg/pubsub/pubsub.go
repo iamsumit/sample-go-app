@@ -8,7 +8,7 @@ import (
 	"cloud.google.com/go/pubsub"
 )
 
-// Handler is the GCLOUD PubSub implementation of the pubsub.Service Interface
+// Handler is the GCLOUD PubSub implementation of the pubsub.Service Interface.
 type Handler struct {
 	client *pubsub.Client
 }
@@ -25,7 +25,7 @@ type Subscription struct {
 	cancelSubscription context.CancelFunc
 }
 
-// Message is the message that we will publish to pubsub
+// Message is the message that we will publish to pubsub.
 type Message struct {
 	// Attributes are the pubsub message attributes.
 	Attributes map[string]string

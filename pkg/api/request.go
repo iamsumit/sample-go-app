@@ -8,7 +8,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-// Decode decodes a JSON request body into the provided type
+// Decode decodes a JSON request body into the provided type.
 func Decode(r *http.Request, d interface{}) error {
 	// Read the request body
 	body, err := ioutil.ReadAll(r.Body)

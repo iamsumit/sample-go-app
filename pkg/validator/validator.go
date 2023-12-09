@@ -5,9 +5,8 @@ import (
 	"strings"
 
 	"github.com/go-playground/locales/en"
-	"github.com/go-playground/validator/v10"
-
 	ut "github.com/go-playground/universal-translator"
+	"github.com/go-playground/validator/v10"
 	en_translations "github.com/go-playground/validator/v10/translations/en"
 )
 
@@ -16,14 +15,11 @@ type Handler struct {
 	t ut.Translator
 }
 
-var (
-	// A default validator instance.
-	h = New()
-)
+// A default validator instance.
+var h = New()
 
 // New returns a new validator instance.
 func New() *Handler {
-
 	validate := validator.New()
 
 	// Create a translator for english so the error messages are

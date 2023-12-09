@@ -28,7 +28,7 @@ type Response struct {
 	Errors interface{} `json:"errors,omitempty"`
 }
 
-// Respond returns json to client
+// Respond returns json to client.
 func Respond(ctx context.Context, w http.ResponseWriter, data interface{}, statusCode int) error {
 	v, err := GetContextValues(ctx)
 	if err != nil {
