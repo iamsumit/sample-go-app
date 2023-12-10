@@ -8,6 +8,7 @@ require (
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/iamsumit/sample-go-app/pkg v0.0.0-00010101000000-000000000000
 	github.com/spf13/viper v1.18.1
+	github.com/swaggest/swgui v1.7.5
 )
 
 require (

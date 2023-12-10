@@ -1,8 +1,14 @@
+// File: model.go declares the database request and response models used by the user store.
+// -------------------------------------------------------------------
+// Database request and response models
+// -------------------------------------------------------------------
 package store
 
 import "time"
 
 // User represents a user in the system.
+//
+// database input for user table having input for user_settings along with it.
 type User struct {
 	ID        int       `db:"id"`
 	Name      string    `db:"name"`
@@ -14,6 +20,8 @@ type User struct {
 }
 
 // Settings represents the user settings.
+//
+// database input for user_settings table, used in the user input.
 type Settings struct {
 	IsSubscribed *bool   `db:"is_subscribed"`
 	Biography    *string `db:"biography"`

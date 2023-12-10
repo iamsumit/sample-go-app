@@ -28,6 +28,16 @@ tasks:
         vars:
           SERVICE_NAME: sample_migrator
 
+  generate:docs:
+    desc: "Generate the swagger documentation for the sample application."
+    cmds:
+      - swagger generate spec -o {{ .DOCS_DIR }}/v1/swagger.json --scan-models
+      - swagger generate spec -o {{ .DOCS_DIR }}/v1/swagger.json -o {{ .DOCS_DIR }}/v1/swagger.yml
+      - swagger generate markdown --spec={{ .DOCS_DIR }}/v1/swagger.yml --output {{ .DOCS_DIR }}/v1/api.md
+    vars:
+      DOCS_DIR: ./docs/swagger
+    dir: '{{ .SAMPLE_APP_DIR }}'
+
   up:
     desc: "Start the sample application."
     cmds:

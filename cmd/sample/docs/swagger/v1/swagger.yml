@@ -1,0 +1,301 @@
+basePath: /
+consumes:
+    - application/json
+definitions:
+    ErrorResponse:
+        properties:
+            data:
+                additionalProperties: {}
+                description: in:body
+                example:
+                    field: error message for this specific field
+                type: object
+                x-go-name: Data
+            error:
+                description: in:body
+                example: data is not in proper format
+                type: string
+                x-go-name: Error
+        title: ErrorResponse is the form used for API responses from failures in the API.
+        type: object
+        x-go-package: github.com/iamsumit/sample-go-app/pkg/api
+    createUser:
+        properties:
+            biography:
+                description: |-
+                    Bio of the user
+
+                    in: body
+                    type: string
+                example: I am a developer by profession.
+                type: string
+                x-go-name: Biography
+            date_of_birth:
+                description: |-
+                    Date of birth of the user
+
+                    in: body
+                    type: string
+                example: "1990-01-15"
+                type: string
+                x-go-name: DateOfBirth
+            email:
+                description: |-
+                    the email address for this user
+
+                    in: body
+                    type: string
+                example: user@provider.net
+                type: string
+                x-go-name: Email
+            name:
+                description: |-
+                    Name of the user
+
+                    in: body
+                    type: string
+                example: Sumit Kumar
+                type: string
+                x-go-name: Name
+        required:
+            - name
+        title: NewUser represents the information required to create a New User.
+        type: object
+        x-go-name: NewUser
+        x-go-package: github.com/iamsumit/sample-go-app/sample/internal/handler/entitygrp/user/v1
+    user:
+        properties:
+            created_at:
+                description: |-
+                    CreatedAt represents the time when the user was created.
+
+                    type: string
+                example: "2020-01-01T00:00:00Z"
+                format: date-time
+                type: string
+                x-go-name: CreatedAt
+            id:
+                description: |-
+                    ID of the user
+
+                    type: int
+                example: 1
+                format: int64
+                type: integer
+                x-go-name: ID
+            name:
+                description: |-
+                    Name of the user
+
+                    type: string
+                example: Sumit Kumar
+                type: string
+                x-go-name: Name
+            settings:
+                $ref: '#/definitions/userSettings'
+            updated_at:
+                description: |-
+                    UpdatedAt represents the time when the user was updated.
+
+                    type: string
+                example: "2020-01-01T00:00:00Z"
+                format: date-time
+                type: string
+                x-go-name: UpdatedAt
+        required:
+            - id
+        title: User represents the information will be returned by the API.
+        type: object
+        x-go-name: User
+        x-go-package: github.com/iamsumit/sample-go-app/sample/internal/handler/entitygrp/user/v1
+    userSettings:
+        properties:
+            biography:
+                description: |-
+                    Bio of the user
+
+                    type: string
+                example: I am a developer by profession.
+                type: string
+                x-go-name: Biography
+            date_of_birth:
+                description: |-
+                    Date of birth of the user
+
+                    type: string
+                example: "1990-01-15"
+                type: string
+                x-go-name: DateOfBirth
+            email:
+                description: |-
+                    Email of the user
+
+                    type: string
+                example: user@provider.net
+                type: string
+                x-go-name: Email
+            is_active:
+                description: |-
+                    IsActive represents the status of the user.
+
+                    type: bool
+                example: true
+                type: boolean
+                x-go-name: IsActive
+            is_subscribed:
+                description: |-
+                    IsSubscribed represents the subscription status of the user.
+
+                    type: bool
+                example: true
+                type: boolean
+                x-go-name: IsSubscribed
+        title: Settings represents the user settings returned along with user information.
+        type: object
+        x-go-name: Settings
+        x-go-package: github.com/iamsumit/sample-go-app/sample/internal/handler/entitygrp/user/v1
+host: localhost:8080
+info:
+    description: |-
+        the purpose of this application is to provide basic routes
+        to play with.
+
+        This should demonstrate all the possible comment annotations
+        that are available to turn go code into a fully compliant swagger 2.0 spec
+    termsOfService: there are no TOS at this moment, use at your own risk we take no responsibility
+    title: Sample API.
+    version: 0.0.1
+paths:
+    /v1/user:
+        post:
+            consumes:
+                - application/json
+            description: |-
+                This will help you create a new user by given information.
+                It will validate the information and create a new user.
+                The uniqueness validation will be done if email is provided.
+            operationId: createUser
+            parameters:
+                - description: The body to create a new user.
+                  in: body
+                  name: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/createUser'
+                  x-go-name: Body
+            produces:
+                - application/json
+            responses:
+                "200":
+                    $ref: '#/responses/userResponse200'
+                "400":
+                    $ref: '#/responses/userResponse400'
+            schemes:
+                - http
+                - https
+            summary: Create a new user by given information.
+            tags:
+                - users
+    /v1/user/{id}:
+        get:
+            consumes:
+                - application/json
+            description: This will help you get a user information by given id.
+            operationId: getUser
+            parameters:
+                - description: The id to get a new user.
+                  format: int64
+                  in: path
+                  name: id
+                  required: true
+                  type: integer
+                  x-go-name: ID
+            produces:
+                - application/json
+            responses:
+                "200":
+                    $ref: '#/responses/userResponse200'
+                "400":
+                    $ref: '#/responses/userResponse400'
+                "404":
+                    $ref: '#/responses/userResponse404'
+            schemes:
+                - http
+                - https
+            summary: ByID returns the user for the given id.
+            tags:
+                - users
+produces:
+    - application/json
+responses:
+    userResponse200:
+        description: ""
+        schema:
+            properties:
+                data:
+                    description: |-
+                        Data
+                        in: body
+                    items:
+                        $ref: '#/definitions/user'
+                    type: array
+                    x-go-name: Data
+                success:
+                    description: Success
+                    example: false
+                    type: boolean
+                    x-go-name: Success
+                timestamp:
+                    description: Timestamp
+                    example: 1639237536
+                    format: int64
+                    type: integer
+                    x-go-name: Timestamp
+            type: object
+    userResponse400:
+        description: ""
+        schema:
+            properties:
+                errors:
+                    $ref: '#/definitions/ErrorResponse'
+                success:
+                    description: Success
+                    example: false
+                    type: boolean
+                    x-go-name: Success
+                timestamp:
+                    description: Timestamp
+                    example: 1639237536
+                    format: int64
+                    type: integer
+                    x-go-name: Timestamp
+            type: object
+    userResponse404:
+        description: ""
+        schema:
+            properties:
+                errors:
+                    additionalProperties: {}
+                    description: |-
+                        Data
+                        in: body
+                    example:
+                        error: user not found
+                    type: object
+                    x-go-name: Errors
+                success:
+                    description: Success
+                    example: false
+                    type: boolean
+                    x-go-name: Success
+                timestamp:
+                    description: Timestamp
+                    example: 1639237536
+                    format: int64
+                    type: integer
+                    x-go-name: Timestamp
+            type: object
+schemes:
+    - http
+    - https
+swagger: "2.0"

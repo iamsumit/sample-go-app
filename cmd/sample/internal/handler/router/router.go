@@ -1,19 +1,49 @@
-// Package router provides the router for the application.
+// Package router Sample API.
 //
-// It can be used to add all the possible routes for the application.
+// the purpose of this application is to provide basic routes
+// to play with.
+//
+// This should demonstrate all the possible comment annotations
+// that are available to turn go code into a fully compliant swagger 2.0 spec
+//
+// Terms Of Service:
+//
+// there are no TOS at this moment, use at your own risk we take no responsibility
+//
+//	Schemes: http, https
+//	Host: localhost:8080
+//	BasePath: /
+//	Version: 0.0.1
+//
+//	Consumes:
+//	- application/json
+//
+//	Produces:
+//	- application/json
+//
+// swagger:meta
 package router
 
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	"github.com/iamsumit/sample-go-app/pkg/api"
 	"github.com/iamsumit/sample-go-app/pkg/api/middleware"
 	"github.com/iamsumit/sample-go-app/pkg/logger"
 	pUserV1 "github.com/iamsumit/sample-go-app/sample/internal/handler/entitygrp/user/v1"
+	swgui "github.com/swaggest/swgui/v5cdn"
 )
+
+// Routes holds the additional routes information for the application.
+type Routes struct {
+	Path    string
+	Handler api.Handler
+}
 
 // Config holds the configuration for the router.
 type Config struct {
@@ -22,7 +52,7 @@ type Config struct {
 }
 
 // ConfigureRoutes configures the routes for the application.
-func ConfigureRoutes(shutdown chan os.Signal, mHandler api.Handler, cfg Config, mw ...api.Middleware) http.Handler {
+func ConfigureRoutes(shutdown chan os.Signal, routes []Routes, cfg Config, mw ...api.Middleware) http.Handler {
 	// -------------------------------------------------------------------
 	// Middlewares
 	// -------------------------------------------------------------------
@@ -41,8 +71,12 @@ func ConfigureRoutes(shutdown chan os.Signal, mHandler api.Handler, cfg Config, 
 		return err
 	})
 
-	// Provides metrics endpoint.
-	a.Handle(http.MethodGet, "/metrics", mHandler)
+	// -------------------------------------------------------------------
+	// Additional Routes
+	// -------------------------------------------------------------------
+	for _, r := range routes {
+		a.Handle(http.MethodGet, r.Path, r.Handler)
+	}
 
 	// -------------------------------------------------------------------
 	// V1 Routes
@@ -61,4 +95,39 @@ func SetV1Routes(a *api.API, cfg Config) {
 
 	a.Handle(http.MethodGet, "/v1/user/{id}", userV1.ByID)
 	a.Handle(http.MethodPost, "/v1/user", userV1.CreateUser)
+
+	ServeDocsRoutes(a, "v1")
+}
+
+// ServeDocsRoutes serves the swagger documentation routes.
+func ServeDocsRoutes(a *api.API, version string) {
+	// -------------------------------------------------------------------
+	// Swagger JSON
+	// -------------------------------------------------------------------
+	vSwagPath := fmt.Sprintf("/%s/swagger.json", version)
+	a.Handle(http.MethodGet, vSwagPath, func(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+		// Construct the full path to the JSON file
+		swagJSONPath := filepath.Join("./docs", "swagger", version, "/swagger.json")
+		http.ServeFile(
+			w,
+			r,
+			swagJSONPath,
+		)
+
+		return nil
+	})
+
+	// -------------------------------------------------------------------
+	// Swagger UI
+	// -------------------------------------------------------------------
+	docPath := fmt.Sprintf("/%s/docs", version)
+	a.Handle(http.MethodGet, docPath, func(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+		swgui.New(
+			"Sample API",
+			vSwagPath,
+			"/v1/docs",
+		).ServeHTTP(w, r)
+
+		return nil
+	})
 }

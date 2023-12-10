@@ -1,0 +1,328 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "the purpose of this application is to provide basic routes\nto play with.\n\nThis should demonstrate all the possible comment annotations\nthat are available to turn go code into a fully compliant swagger 2.0 spec",
+    "title": "Sample API.",
+    "termsOfService": "there are no TOS at this moment, use at your own risk we take no responsibility",
+    "version": "0.0.1"
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "paths": {
+    "/v1/user": {
+      "post": {
+        "description": "This will help you create a new user by given information.\nIt will validate the information and create a new user.\nThe uniqueness validation will be done if email is provided.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "users"
+        ],
+        "summary": "Create a new user by given information.",
+        "operationId": "createUser",
+        "parameters": [
+          {
+            "x-go-name": "Body",
+            "description": "The body to create a new user.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/createUser"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/userResponse200"
+          },
+          "400": {
+            "$ref": "#/responses/userResponse400"
+          }
+        }
+      }
+    },
+    "/v1/user/{id}": {
+      "get": {
+        "description": "This will help you get a user information by given id.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "users"
+        ],
+        "summary": "ByID returns the user for the given id.",
+        "operationId": "getUser",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "ID",
+            "description": "The id to get a new user.",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/userResponse200"
+          },
+          "400": {
+            "$ref": "#/responses/userResponse400"
+          },
+          "404": {
+            "$ref": "#/responses/userResponse404"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "type": "object",
+      "title": "ErrorResponse is the form used for API responses from failures in the API.",
+      "properties": {
+        "data": {
+          "description": "in:body",
+          "type": "object",
+          "additionalProperties": {},
+          "x-go-name": "Data",
+          "example": {
+            "field": "error message for this specific field"
+          }
+        },
+        "error": {
+          "description": "in:body",
+          "type": "string",
+          "x-go-name": "Error",
+          "example": "data is not in proper format"
+        }
+      },
+      "x-go-package": "github.com/iamsumit/sample-go-app/pkg/api"
+    },
+    "createUser": {
+      "type": "object",
+      "title": "NewUser represents the information required to create a New User.",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "biography": {
+          "description": "Bio of the user\n\nin: body\ntype: string",
+          "type": "string",
+          "x-go-name": "Biography",
+          "example": "I am a developer by profession."
+        },
+        "date_of_birth": {
+          "description": "Date of birth of the user\n\nin: body\ntype: string",
+          "type": "string",
+          "x-go-name": "DateOfBirth",
+          "example": "1990-01-15"
+        },
+        "email": {
+          "description": "the email address for this user\n\nin: body\ntype: string",
+          "type": "string",
+          "x-go-name": "Email",
+          "example": "user@provider.net"
+        },
+        "name": {
+          "description": "Name of the user\n\nin: body\ntype: string",
+          "type": "string",
+          "x-go-name": "Name",
+          "example": "Sumit Kumar"
+        }
+      },
+      "x-go-name": "NewUser",
+      "x-go-package": "github.com/iamsumit/sample-go-app/sample/internal/handler/entitygrp/user/v1"
+    },
+    "user": {
+      "type": "object",
+      "title": "User represents the information will be returned by the API.",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "created_at": {
+          "description": "CreatedAt represents the time when the user was created.\n\ntype: string",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt",
+          "example": "2020-01-01T00:00:00Z"
+        },
+        "id": {
+          "description": "ID of the user\n\ntype: int",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID",
+          "example": 1
+        },
+        "name": {
+          "description": "Name of the user\n\ntype: string",
+          "type": "string",
+          "x-go-name": "Name",
+          "example": "Sumit Kumar"
+        },
+        "settings": {
+          "$ref": "#/definitions/userSettings"
+        },
+        "updated_at": {
+          "description": "UpdatedAt represents the time when the user was updated.\n\ntype: string",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "UpdatedAt",
+          "example": "2020-01-01T00:00:00Z"
+        }
+      },
+      "x-go-name": "User",
+      "x-go-package": "github.com/iamsumit/sample-go-app/sample/internal/handler/entitygrp/user/v1"
+    },
+    "userSettings": {
+      "type": "object",
+      "title": "Settings represents the user settings returned along with user information.",
+      "properties": {
+        "biography": {
+          "description": "Bio of the user\n\ntype: string",
+          "type": "string",
+          "x-go-name": "Biography",
+          "example": "I am a developer by profession."
+        },
+        "date_of_birth": {
+          "description": "Date of birth of the user\n\ntype: string",
+          "type": "string",
+          "x-go-name": "DateOfBirth",
+          "example": "1990-01-15"
+        },
+        "email": {
+          "description": "Email of the user\n\ntype: string",
+          "type": "string",
+          "x-go-name": "Email",
+          "example": "user@provider.net"
+        },
+        "is_active": {
+          "description": "IsActive represents the status of the user.\n\ntype: bool",
+          "type": "boolean",
+          "x-go-name": "IsActive",
+          "example": true
+        },
+        "is_subscribed": {
+          "description": "IsSubscribed represents the subscription status of the user.\n\ntype: bool",
+          "type": "boolean",
+          "x-go-name": "IsSubscribed",
+          "example": true
+        }
+      },
+      "x-go-name": "Settings",
+      "x-go-package": "github.com/iamsumit/sample-go-app/sample/internal/handler/entitygrp/user/v1"
+    }
+  },
+  "responses": {
+    "userResponse200": {
+      "description": "",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "Data\nin: body",
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/user"
+            },
+            "x-go-name": "Data"
+          },
+          "success": {
+            "description": "Success",
+            "type": "boolean",
+            "x-go-name": "Success",
+            "example": false
+          },
+          "timestamp": {
+            "description": "Timestamp",
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "Timestamp",
+            "example": 1639237536
+          }
+        }
+      }
+    },
+    "userResponse400": {
+      "description": "",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "$ref": "#/definitions/ErrorResponse"
+          },
+          "success": {
+            "description": "Success",
+            "type": "boolean",
+            "x-go-name": "Success",
+            "example": false
+          },
+          "timestamp": {
+            "description": "Timestamp",
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "Timestamp",
+            "example": 1639237536
+          }
+        }
+      }
+    },
+    "userResponse404": {
+      "description": "",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "description": "Data\nin: body",
+            "type": "object",
+            "additionalProperties": {},
+            "x-go-name": "Errors",
+            "example": {
+              "error": "user not found"
+            }
+          },
+          "success": {
+            "description": "Success",
+            "type": "boolean",
+            "x-go-name": "Success",
+            "example": false
+          },
+          "timestamp": {
+            "description": "Timestamp",
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "Timestamp",
+            "example": 1639237536
+          }
+        }
+      }
+    }
+  }
+}

@@ -31,7 +31,26 @@ func New(log logger.Logger, db *sql.DB) *Handler {
 	}
 }
 
+// swagger:route GET /v1/user/{id} users getUser
+//
 // ByID returns the user for the given id.
+//
+// This will help you get a user information by given id.
+//
+// ---
+//
+//	Consumes:
+//		- application/json
+//
+//	Produces:
+//		- application/json
+//
+//	Schemes: http, https
+//
+//	Responses:
+//		- 200: userResponse200
+//		- 404: userResponse404
+//	  - 400: userResponse400
 func (h *Handler) ByID(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	id := api.Param(r, "id")
 
@@ -55,10 +74,30 @@ func (h *Handler) ByID(ctx context.Context, w http.ResponseWriter, r *http.Reque
 	return err
 }
 
-// CreateUser creates a new user.
+// swagger:route POST /v1/user users createUser
+//
+// Create a new user by given information.
+//
+// This will help you create a new user by given information.
+// It will validate the information and create a new user.
+// The uniqueness validation will be done if email is provided.
+//
+// ---
+//
+//	Consumes:
+//		- application/json
+//
+//	Produces:
+//		- application/json
+//
+//	Schemes: http, https
+//
+//	Responses:
+//		- 200: userResponse200
+//		- 400: userResponse400
 func (h *Handler) CreateUser(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	newUser := NewUser{}
-	err := api.Decode(r, &newUser)
+	err := api.Decode(r, h.log, &newUser)
 	if err != nil {
 		h.log.Error(
 			"decoding error",

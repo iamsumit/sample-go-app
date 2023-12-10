@@ -5,11 +5,12 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/iamsumit/sample-go-app/pkg/logger"
 	"github.com/mitchellh/mapstructure"
 )
 
 // Decode decodes a JSON request body into the provided type.
-func Decode(r *http.Request, d interface{}) error {
+func Decode(r *http.Request, log logger.Logger, d interface{}) error {
 	// Read the request body
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {

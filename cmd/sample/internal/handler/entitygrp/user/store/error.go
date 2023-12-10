@@ -1,3 +1,6 @@
+// File: error.go declares the errors used by the user store.
+// package store
+
 package store
 
 import "errors"

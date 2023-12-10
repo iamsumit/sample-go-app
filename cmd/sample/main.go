@@ -133,7 +133,14 @@ func start(log logger.Logger) error {
 	mw := make([]api.Middleware, 0)
 	mw = append(mw, mInt.Middleware(log))
 
-	handler := router.ConfigureRoutes(shutdown, mInt.Handler(), router.Config{
+	routes := []router.Routes{
+		{
+			Path:    "/metrics",
+			Handler: mInt.Handler(),
+		},
+	}
+
+	handler := router.ConfigureRoutes(shutdown, routes, router.Config{
 		Log: log,
 		DB:  sqlDB,
 	}, mw...)
