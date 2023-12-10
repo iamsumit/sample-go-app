@@ -41,9 +41,30 @@ type _ struct {
 // Swagger response is used in various user routes for a successful response.
 //
 // GET /v1/user/{id}
-// POST /v1/user
 
 // swagger:response userResponse200
+type _ struct {
+	// in:body
+	Body struct {
+		// Success
+		//
+		// // example: false
+		Success bool `json:"success"`
+		// Timestamp
+		//
+		// example: 1639237536
+		Timestamp int64 `json:"timestamp"`
+		// Data
+		// in: body
+		Data []User `json:"data"`
+	}
+}
+
+// Swagger response is used in various user routes for a successful response.
+//
+// POST /v1/user
+
+// swagger:response userResponse201
 type _ struct {
 	// in:body
 	Body struct {
@@ -106,5 +127,30 @@ type _ struct {
 		// Data
 		// in: body
 		Errors api.ErrorResponse `json:"errors"`
+	}
+}
+
+// Swagger response is used in various user routes for a failed response
+// because of 400.
+//
+// GET /v1/user/{id}
+// POST /v1/user
+
+// swagger:response userResponse409
+type _ struct {
+	// in:body
+	Body struct {
+		// Success
+		//
+		// example: false
+		Success bool `json:"success"`
+		// Timestamp
+		//
+		// example: 1639237536
+		Timestamp int64 `json:"timestamp"`
+		// Data
+		// in: body
+		// example: {"error": "user already exists"}
+		Errors map[string]interface{} `json:"errors"`
 	}
 }

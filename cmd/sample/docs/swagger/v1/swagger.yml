@@ -186,10 +186,12 @@ paths:
             produces:
                 - application/json
             responses:
-                "200":
-                    $ref: '#/responses/userResponse200'
+                "201":
+                    $ref: '#/responses/userResponse201'
                 "400":
                     $ref: '#/responses/userResponse400'
+                "409":
+                    $ref: '#/responses/userResponse409'
             schemes:
                 - http
                 - https
@@ -252,6 +254,30 @@ responses:
                     type: integer
                     x-go-name: Timestamp
             type: object
+    userResponse201:
+        description: ""
+        schema:
+            properties:
+                data:
+                    description: |-
+                        Data
+                        in: body
+                    items:
+                        $ref: '#/definitions/user'
+                    type: array
+                    x-go-name: Data
+                success:
+                    description: Success
+                    example: false
+                    type: boolean
+                    x-go-name: Success
+                timestamp:
+                    description: Timestamp
+                    example: 1639237536
+                    format: int64
+                    type: integer
+                    x-go-name: Timestamp
+            type: object
     userResponse400:
         description: ""
         schema:
@@ -281,6 +307,31 @@ responses:
                         in: body
                     example:
                         error: user not found
+                    type: object
+                    x-go-name: Errors
+                success:
+                    description: Success
+                    example: false
+                    type: boolean
+                    x-go-name: Success
+                timestamp:
+                    description: Timestamp
+                    example: 1639237536
+                    format: int64
+                    type: integer
+                    x-go-name: Timestamp
+            type: object
+    userResponse409:
+        description: ""
+        schema:
+            properties:
+                errors:
+                    additionalProperties: {}
+                    description: |-
+                        Data
+                        in: body
+                    example:
+                        error: user already exists
                     type: object
                     x-go-name: Errors
                 success:

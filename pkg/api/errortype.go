@@ -1,20 +1,16 @@
-package validator
+package api
 
-import "errors"
+//--------------------------------------------------------------------------
+// Error Declaration
+//--------------------------------------------------------------------------
 
-var (
-	// ErrFailedValidation is returned when the validation fails.
-	ErrFailedValidation = errors.New("field validation failed")
-)
-
-// Error is a custom error type that holds the error message and status code.
-//
-// It can be validated by using errors.As() or err.(type) function.
+// Error is used to pass an error during the request through the
+// application with web specific context.
 type Error struct {
-	// Err is the error message.
+	// Err is the error message being passed through the application.
 	Err error
 
-	// Status is the HTTP status code.
+	// Status is the HTTP status code to send for the error.
 	Status int
 
 	// Attributes is a map of field name and error.

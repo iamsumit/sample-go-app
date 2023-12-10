@@ -8,6 +8,26 @@ import (
 	"time"
 )
 
+//--------------------------------------------------------------------------
+// Error response
+//--------------------------------------------------------------------------
+
+// ErrorResponse is the form used for API responses from failures in the API.
+type ErrorResponse struct {
+	// in:body
+	//
+	//example: data is not in proper format
+	Error string `json:"error"`
+	// in:body
+	//
+	//example: {"field": "error message for this specific field"}
+	Data map[string]interface{} `json:"data,omitempty"`
+}
+
+//--------------------------------------------------------------------------
+// The response
+//--------------------------------------------------------------------------
+
 // Response is the form used for API responses for success in the API.
 type Response struct {
 	// Success
@@ -32,7 +52,7 @@ type Response struct {
 func Respond(ctx context.Context, w http.ResponseWriter, data interface{}, statusCode int) error {
 	v, err := GetContextValues(ctx)
 	if err != nil {
-		return NewRequestError(err, http.StatusInternalServerError)
+		return NewError(err, http.StatusInternalServerError, nil)
 	}
 
 	// Set the status code for the request logger middleware in the context.

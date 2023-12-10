@@ -5,8 +5,10 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"net/http"
 
 	"github.com/Masterminds/squirrel"
+	"github.com/iamsumit/sample-go-app/pkg/db"
 )
 
 // ByID returns the user for the given id.
@@ -34,7 +36,11 @@ func (h *Handler) ByID(_ context.Context, id int) (*User, error) {
 			},
 		).ToSql()
 	if err != nil {
-		return nil, fmt.Errorf("ByID: unable to build select query: %w", err)
+		return nil, db.NewError(
+			fmt.Errorf("internal: user.ByID - unable to build select query: %w", err),
+			http.StatusInternalServerError,
+			nil,
+		)
 	}
 
 	user := new(User)
@@ -52,10 +58,18 @@ func (h *Handler) ByID(_ context.Context, id int) (*User, error) {
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, ErrUserNotFound
+			return nil, db.NewError(
+				ErrUserNotFound,
+				http.StatusNotFound,
+				nil,
+			)
 		}
 
-		return nil, fmt.Errorf("ByID: unable to query data: %w", err)
+		return nil, db.NewError(
+			fmt.Errorf("internal: user.ByID - unable to query data: %w", err),
+			http.StatusInternalServerError,
+			nil,
+		)
 	}
 
 	return user, nil
@@ -86,7 +100,11 @@ func (h *Handler) ByEmail(_ context.Context, email string) (*User, error) {
 			},
 		).ToSql()
 	if err != nil {
-		return nil, fmt.Errorf("ByEmail: unable to build select query: %w", err)
+		return nil, db.NewError(
+			fmt.Errorf("internal: user.ByEmail - unable to build select query: %w", err),
+			http.StatusInternalServerError,
+			nil,
+		)
 	}
 
 	user := new(User)
@@ -104,10 +122,18 @@ func (h *Handler) ByEmail(_ context.Context, email string) (*User, error) {
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, ErrUserNotFound
+			return nil, db.NewError(
+				ErrUserNotFound,
+				http.StatusNotFound,
+				nil,
+			)
 		}
 
-		return nil, fmt.Errorf("ByEmail: unable to query data: %w", err)
+		return nil, db.NewError(
+			fmt.Errorf("internal: user.ByEmail - unable to query data: %w", err),
+			http.StatusInternalServerError,
+			nil,
+		)
 	}
 
 	return user, nil
@@ -123,7 +149,11 @@ func (h *Handler) Create(ctx context.Context, user User) (*User, error) {
 		}
 
 		if existingUser != nil {
-			return nil, ErrDuplicateEmail
+			return nil, db.NewError(
+				ErrDuplicateEmail,
+				http.StatusConflict,
+				nil,
+			)
 		}
 	}
 
@@ -136,19 +166,31 @@ func (h *Handler) Create(ctx context.Context, user User) (*User, error) {
 			user.IsActive,
 		).ToSql()
 	if err != nil {
-		return nil, fmt.Errorf("Create: unable to build user insert query: %w", err)
+		return nil, db.NewError(
+			fmt.Errorf("internal: user.Create - unable to build user insert query: %w", err),
+			http.StatusInternalServerError,
+			nil,
+		)
 	}
 
 	// Insert the user in the database.
 	result, err := h.db.Exec(query, args...)
 	if err != nil {
-		return nil, fmt.Errorf("Create: unable to insert user: %w", err)
+		return nil, db.NewError(
+			fmt.Errorf("internal: user.Create - unable to insert user: %w", err),
+			http.StatusInternalServerError,
+			nil,
+		)
 	}
 
 	// Get the last insert id.
 	id, err := result.LastInsertId()
 	if err != nil {
-		return nil, fmt.Errorf("Create: unable to get last insert id: %w", err)
+		return nil, db.NewError(
+			fmt.Errorf("internal: user.Create: unable to get last insert id: %w", err),
+			http.StatusInternalServerError,
+			nil,
+		)
 	}
 
 	// Build the insert query for user_settings table.
@@ -161,13 +203,21 @@ func (h *Handler) Create(ctx context.Context, user User) (*User, error) {
 			user.Settings.DateOfBirth,
 		).ToSql()
 	if err != nil {
-		return nil, fmt.Errorf("Create: unable to build user settings insert query: %w", err)
+		return nil, db.NewError(
+			fmt.Errorf("internal: user.Create - unable to build user settings insert query: %w", err),
+			http.StatusInternalServerError,
+			nil,
+		)
 	}
 
 	// Insert the user settings in the database.
 	row := h.db.QueryRow(query, args...)
 	if row.Err() != nil {
-		return nil, fmt.Errorf("Create: unable to insert user settings: %w", row.Err())
+		return nil, db.NewError(
+			fmt.Errorf("internal: user.Create - unable to insert user settings: %w", err),
+			http.StatusInternalServerError,
+			nil,
+		)
 	}
 
 	// Get the last created user.

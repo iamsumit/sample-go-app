@@ -56,7 +56,7 @@ func (h *Handler) ByID(ctx context.Context, w http.ResponseWriter, r *http.Reque
 
 	uid, err := strconv.Atoi(id)
 	if err != nil {
-		return api.NewRequestError(ErrInvalidID, http.StatusBadRequest)
+		return api.NewError(ErrInvalidID, http.StatusBadRequest, nil)
 	}
 
 	storeUser, err := h.store.ByID(ctx, uid)
@@ -65,7 +65,7 @@ func (h *Handler) ByID(ctx context.Context, w http.ResponseWriter, r *http.Reque
 	}
 
 	if storeUser == nil {
-		return api.NewRequestError(ErrUserNotFound, http.StatusNotFound)
+		return api.NewError(ErrUserNotFound, http.StatusNotFound, nil)
 	}
 
 	user := new(User).UpdateFrom(*storeUser)
@@ -93,21 +93,14 @@ func (h *Handler) ByID(ctx context.Context, w http.ResponseWriter, r *http.Reque
 //	Schemes: http, https
 //
 //	Responses:
-//		- 200: userResponse200
+//		- 201: userResponse201
 //		- 400: userResponse400
+//	  - 409: userResponse409
 func (h *Handler) CreateUser(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	newUser := NewUser{}
 	err := api.Decode(r, h.log, &newUser)
 	if err != nil {
-		h.log.Error(
-			"decoding error",
-			"error", err.Error(),
-			"method", r.Method,
-			"endpoint", r.URL.Path,
-			"operation", "createUser",
-		)
-
-		return api.NewRequestError(ErrPayloadDecode, http.StatusBadRequest)
+		return err
 	}
 
 	err = validator.Validate(newUser)
@@ -131,7 +124,7 @@ func (h *Handler) CreateUser(ctx context.Context, w http.ResponseWriter, r *http
 	}
 
 	user := new(User).UpdateFrom(*storeUser)
-	err = api.Respond(ctx, w, user, http.StatusOK)
+	err = api.Respond(ctx, w, user, http.StatusCreated)
 
 	return err
 }

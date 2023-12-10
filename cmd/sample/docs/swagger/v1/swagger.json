@@ -50,11 +50,14 @@
           }
         ],
         "responses": {
-          "200": {
-            "$ref": "#/responses/userResponse200"
+          "201": {
+            "$ref": "#/responses/userResponse201"
           },
           "400": {
             "$ref": "#/responses/userResponse400"
+          },
+          "409": {
+            "$ref": "#/responses/userResponse409"
           }
         }
       }
@@ -270,6 +273,35 @@
         }
       }
     },
+    "userResponse201": {
+      "description": "",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "Data\nin: body",
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/user"
+            },
+            "x-go-name": "Data"
+          },
+          "success": {
+            "description": "Success",
+            "type": "boolean",
+            "x-go-name": "Success",
+            "example": false
+          },
+          "timestamp": {
+            "description": "Timestamp",
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "Timestamp",
+            "example": 1639237536
+          }
+        }
+      }
+    },
     "userResponse400": {
       "description": "",
       "schema": {
@@ -306,6 +338,36 @@
             "x-go-name": "Errors",
             "example": {
               "error": "user not found"
+            }
+          },
+          "success": {
+            "description": "Success",
+            "type": "boolean",
+            "x-go-name": "Success",
+            "example": false
+          },
+          "timestamp": {
+            "description": "Timestamp",
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "Timestamp",
+            "example": 1639237536
+          }
+        }
+      }
+    },
+    "userResponse409": {
+      "description": "",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "description": "Data\nin: body",
+            "type": "object",
+            "additionalProperties": {},
+            "x-go-name": "Errors",
+            "example": {
+              "error": "user already exists"
             }
           },
           "success": {

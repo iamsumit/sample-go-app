@@ -1,10 +1,15 @@
-package validator
+package db
 
-import "errors"
+import (
+	"errors"
+	"strings"
+)
 
 var (
-	// ErrFailedValidation is returned when the validation fails.
-	ErrFailedValidation = errors.New("field validation failed")
+	// ErrInternal is the default error message for any database related errors.
+	//
+	// Actual error will be logged.
+	ErrInternal = errors.New("something went wrong internally")
 )
 
 // Error is a custom error type that holds the error message and status code.
@@ -36,5 +41,11 @@ func NewError(err error, status int, attr map[string]interface{}) *Error {
 // Error implements the error interface. It uses the default message of the
 // wrapped error. This is what will be shown in the services' logs.
 func (e *Error) Error() string {
-	return e.Err.Error()
+	msg := e.Err.Error()
+
+	if strings.HasPrefix(msg, "internal:") {
+		return ErrInternal.Error()
+	}
+
+	return msg
 }

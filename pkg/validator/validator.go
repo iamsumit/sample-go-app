@@ -2,6 +2,7 @@ package validator
 
 import (
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/go-playground/locales/en"
@@ -45,28 +46,29 @@ func New() *Handler {
 }
 
 // Validate validates the given struct and returns an error if found.
-func Validate(val interface{}) Error {
+func Validate(val interface{}) error {
 	if err := h.v.Struct(val); err != nil {
 		// If the error is a validator error, convert it.
 		errs, ok := err.(validator.ValidationErrors)
 		if !ok {
-			return fmt.Errorf("validation failed: %w", err)
+			return NewError(
+				fmt.Errorf("validation failed: %w", err),
+				http.StatusInternalServerError,
+				nil,
+			)
 		}
 
-		fields := FieldErrors{
-			Msg: "field validation failed",
-		}
-
+		// Convert the errors to a map of field name and error.
+		var attr = map[string]interface{}{}
 		for _, v := range errs {
-			field := append(fields.FieldError, FieldError{
-				Field: strings.ToLower(v.Field()),
-				Error: strings.ToLower(v.Translate(h.t)),
-			})
-
-			fields.FieldError = append(fields.FieldError, field...)
+			attr[strings.ToLower(v.Field())] = strings.ToLower(v.Translate(h.t))
 		}
 
-		return Error(fields)
+		return NewError(
+			ErrFailedValidation,
+			http.StatusBadRequest,
+			attr,
+		)
 	}
 
 	return nil

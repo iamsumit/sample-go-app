@@ -28,7 +28,7 @@ func Logger(log logger.Logger) api.Middleware {
 			v, err := api.GetContextValues(ctx)
 			if err != nil {
 				log.Error("api value missing from context", "error", err)
-				return api.NewRequestError(err, http.StatusInternalServerError)
+				return api.NewError(err, http.StatusInternalServerError, nil)
 			}
 
 			// Call the next handler

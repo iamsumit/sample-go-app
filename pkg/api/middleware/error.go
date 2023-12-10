@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/iamsumit/sample-go-app/pkg/api"
+	"github.com/iamsumit/sample-go-app/pkg/db"
 	"github.com/iamsumit/sample-go-app/pkg/logger"
 	"github.com/iamsumit/sample-go-app/pkg/validator"
 )
@@ -18,7 +19,7 @@ func Errors(log logger.Logger) api.Middleware {
 		h := func(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 			_, err := api.GetContextValues(ctx)
 			if err != nil {
-				return api.NewRequestError(err, http.StatusInternalServerError)
+				return api.NewError(err, http.StatusInternalServerError, nil)
 			}
 
 			// Run the next handler and catch any propagated error.
@@ -36,12 +37,39 @@ func Errors(log logger.Logger) api.Middleware {
 
 				// Check if this is a normal or a wrapped error.
 				switch err.(type) {
-				case *api.RequestError:
-					status = err.(*api.RequestError).Status
-				case validator.Error:
-					er.Data = validator.Attributes(err)
-					status = http.StatusBadRequest
+				case *api.Error:
+					// The errors provided by the api package related stuff.
+					apiErr := err.(*api.Error)
+
+					// Update any attributes or status set in the apiErr.
+					er.Data = apiErr.Attributes
+					status = apiErr.Status
+				case *validator.Error:
+					// The errors provided by the validate package related stuff.
+					vErr := err.(*validator.Error)
+
+					// Update any attributes or status set in the vErr.
+					er.Data = vErr.Attributes
+					status = vErr.Status
+				case *db.Error:
+					// The errors provided by the db package related stuff.
+					dbErr := err.(*db.Error)
+
+					// Log the actual error message.
+					//
+					// This is what will be shown in the services' logs for
+					// internal purpose only.
+					//
+					// The error message prefixed with "internal:",
+					// will be updated for clients.
+					log.Error("DATABASE ERROR", "error", dbErr.Err.Error())
+
+					// Update any attributes or status set in the dbErr.
+					er.Data = dbErr.Attributes
+					status = dbErr.Status
+
 				default:
+					// This is an unknown error. Log it and set the status code
 					status = http.StatusInternalServerError
 				}
 

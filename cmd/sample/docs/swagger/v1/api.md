@@ -73,20 +73,21 @@ The uniqueness validation will be done if email is provided.
 #### All responses
 | Code | Status | Description | Has headers | Schema |
 |------|--------|-------------|:-----------:|--------|
-| [200](#create-user-200) | OK |  |  | [schema](#create-user-200-schema) |
+| [201](#create-user-201) | Created |  |  | [schema](#create-user-201-schema) |
 | [400](#create-user-400) | Bad Request |  |  | [schema](#create-user-400-schema) |
+| [409](#create-user-409) | Conflict |  |  | [schema](#create-user-409-schema) |
 
 #### Responses
 
 
-##### <span id="create-user-200"></span> 200
-Status: OK
+##### <span id="create-user-201"></span> 201
+Status: Created
 
-###### <span id="create-user-200-schema"></span> Schema
+###### <span id="create-user-201-schema"></span> Schema
    
   
 
-[CreateUserOKBody](#create-user-o-k-body)
+[CreateUserCreatedBody](#create-user-created-body)
 
 ##### <span id="create-user-400"></span> 400
 Status: Bad Request
@@ -96,6 +97,15 @@ Status: Bad Request
   
 
 [CreateUserBadRequestBody](#create-user-bad-request-body)
+
+##### <span id="create-user-409"></span> 409
+Status: Conflict
+
+###### <span id="create-user-409-schema"></span> Schema
+   
+  
+
+[CreateUserConflictBody](#create-user-conflict-body)
 
 ###### Inlined models
 
@@ -116,7 +126,25 @@ Status: Bad Request
 
 
 
-**<span id="create-user-o-k-body"></span> CreateUserOKBody**
+**<span id="create-user-conflict-body"></span> CreateUserConflictBody**
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| Errors | [interface{}](#interface)| `interface{}` |  | | Data
+in: body | `{"error":"user already exists"}` |
+| Success | boolean| `bool` |  | | Success | `false` |
+| Timestamp | int64 (formatted integer)| `int64` |  | | Timestamp | `1639237536` |
+
+
+
+**<span id="create-user-created-body"></span> CreateUserCreatedBody**
 
 
   
