@@ -5,9 +5,8 @@ import (
 	"net/http"
 
 	"github.com/iamsumit/sample-go-app/pkg/api"
-	"github.com/iamsumit/sample-go-app/pkg/db"
+	errpkg "github.com/iamsumit/sample-go-app/pkg/error"
 	"github.com/iamsumit/sample-go-app/pkg/logger"
-	"github.com/iamsumit/sample-go-app/pkg/validator"
 )
 
 // Errors handles errors coming out of the call chain. It detects normal
@@ -37,23 +36,9 @@ func Errors(log logger.Logger) api.Middleware {
 
 				// Check if this is a normal or a wrapped error.
 				switch err.(type) {
-				case *api.Error:
-					// The errors provided by the api package related stuff.
-					apiErr := err.(*api.Error)
-
-					// Update any attributes or status set in the apiErr.
-					er.Data = apiErr.Attributes
-					status = apiErr.Status
-				case *validator.Error:
-					// The errors provided by the validate package related stuff.
-					vErr := err.(*validator.Error)
-
-					// Update any attributes or status set in the vErr.
-					er.Data = vErr.Attributes
-					status = vErr.Status
-				case *db.Error:
-					// The errors provided by the db package related stuff.
-					dbErr := err.(*db.Error)
+				case *errpkg.Error:
+					// The errors provided by the error package related stuff.
+					e := err.(*errpkg.Error)
 
 					// Log the actual error message.
 					//
@@ -62,12 +47,19 @@ func Errors(log logger.Logger) api.Middleware {
 					//
 					// The error message prefixed with "internal:",
 					// will be updated for clients.
-					log.Error("DATABASE ERROR", "error", dbErr.Err.Error())
+					log.Error(
+						"ORIGINAL ERROR",
+						"error_type", e.Type(),
+						"error", e.OriginalError(),
+						"status", e.StatusCode(),
+						"attributes", e.Attributes(),
+						"path", r.URL.Path,
+						"method", r.Method,
+					)
 
-					// Update any attributes or status set in the dbErr.
-					er.Data = dbErr.Attributes
-					status = dbErr.Status
-
+					// Update any attributes or status set in the error.
+					er.Data = e.Attributes()
+					status = e.StatusCode()
 				default:
 					// This is an unknown error. Log it and set the status code
 					status = http.StatusInternalServerError

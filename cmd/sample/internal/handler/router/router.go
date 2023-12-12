@@ -35,7 +35,7 @@ import (
 	"github.com/iamsumit/sample-go-app/pkg/api"
 	"github.com/iamsumit/sample-go-app/pkg/api/middleware"
 	"github.com/iamsumit/sample-go-app/pkg/logger"
-	pUserV1 "github.com/iamsumit/sample-go-app/sample/internal/handler/entitygrp/user/v1"
+	userv1 "github.com/iamsumit/sample-go-app/sample/internal/handler/entitygrp/user/v1"
 	redoc "github.com/mvrilo/go-redoc"
 	swgui "github.com/swaggest/swgui/v5cdn"
 )
@@ -92,7 +92,7 @@ func SetV1Routes(a *api.API, cfg Config) {
 	// -------------------------------------------------------------------
 	// User Handler & Routes
 	// -------------------------------------------------------------------
-	userV1 := pUserV1.New(cfg.Log, cfg.DB)
+	userV1 := userv1.New(cfg.Log, cfg.DB)
 
 	a.Handle(http.MethodGet, "/v1/user/{id}", userV1.ByID)
 	a.Handle(http.MethodPost, "/v1/user", userV1.CreateUser)

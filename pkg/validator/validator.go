@@ -8,7 +8,8 @@ import (
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
-	en_translations "github.com/go-playground/validator/v10/translations/en"
+	entranslations "github.com/go-playground/validator/v10/translations/en"
+	errpkg "github.com/iamsumit/sample-go-app/pkg/error"
 )
 
 type Handler struct {
@@ -26,7 +27,7 @@ func New() *Handler {
 	// Create a translator for english so the error messages are
 	// more human-readable than technical.
 	translator, _ := ut.New(en.New(), en.New()).GetTranslator("en")
-	_ = en_translations.RegisterDefaultTranslations(validate, translator)
+	_ = entranslations.RegisterDefaultTranslations(validate, translator)
 
 	// ---------------------------------------------------------
 	// Birth date validators
@@ -65,9 +66,10 @@ func Validate(val interface{}) error {
 		}
 
 		return NewError(
-			ErrFailedValidation,
+			err,
 			http.StatusBadRequest,
 			attr,
+			errpkg.WithMessage("field validation failed"),
 		)
 	}
 

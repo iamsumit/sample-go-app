@@ -12,11 +12,11 @@ import (
 	"github.com/iamsumit/sample-go-app/pkg/api"
 	"github.com/iamsumit/sample-go-app/pkg/db"
 	"github.com/iamsumit/sample-go-app/pkg/logger"
-	"github.com/iamsumit/sample-go-app/pkg/metrics"
+	smetrics "github.com/iamsumit/sample-go-app/pkg/metrics"
 	"github.com/iamsumit/sample-go-app/pkg/tracer"
 	"github.com/iamsumit/sample-go-app/sample/internal/config"
 	"github.com/iamsumit/sample-go-app/sample/internal/handler/router"
-	pMetricsInt "github.com/iamsumit/sample-go-app/sample/internal/observation/metrics"
+	"github.com/iamsumit/sample-go-app/sample/internal/observation/metrics"
 	"github.com/spf13/viper"
 )
 
@@ -50,18 +50,20 @@ func start(log logger.Logger) error {
 
 	// Read through environment variable.
 	viper.SetEnvPrefix("SAMPLE")
-	viper.AutomaticEnv()
 
 	// Read the configuration on load.
-	configuration := config.ReadConfig()
+	configuration, err := config.Read()
+	if err != nil {
+		return err
+	}
 
 	// -------------------------------------------------------------------
 	// Metrics
 	// -------------------------------------------------------------------
-	mProvider, err := metrics.New(&metrics.Config{
+	mProvider, err := smetrics.New(&smetrics.Config{
 		Name:     "sample",
-		Type:     metrics.Otel,
-		Exporter: metrics.Prometheus,
+		Type:     smetrics.Otel,
+		Exporter: smetrics.Prometheus,
 	})
 	if err != nil {
 		return err
@@ -85,7 +87,7 @@ func start(log logger.Logger) error {
 	// -------------------------------------------------------------------
 	// Observation:- Metrics
 	// -------------------------------------------------------------------
-	mInt, err := pMetricsInt.New("sample", pMetricsInt.WithMetricsProvider(mProvider))
+	mInt, err := metrics.New("sample", metrics.WithMetricsProvider(mProvider))
 	if err != nil {
 		return err
 	}

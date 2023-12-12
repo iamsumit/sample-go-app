@@ -1,4 +1,4 @@
-package api // import "github.com/iamsumit/sample-go-app/pkg/api"
+package api
 
 import (
 	"context"

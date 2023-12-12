@@ -14,14 +14,14 @@ type NewUser struct {
 	// type: string
 	// required: true
 	// example: Sumit Kumar
-	Name string `json:"name" mapstructure:"name" validate:"required"`
+	Name string `json:"name" mapstructure:"name" validate:"required,max=125"`
 
 	// the email address for this user
 	//
 	// in: body
 	// type: string
 	// example: user@provider.net
-	Email *string `json:"email" mapstructure:"email" validate:"email"`
+	Email *string `json:"email" mapstructure:"email" validate:"omitempty,email,max=125"`
 
 	// Bio of the user
 	//

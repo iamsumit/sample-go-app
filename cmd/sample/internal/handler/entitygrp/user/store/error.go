@@ -3,12 +3,25 @@
 
 package store
 
-import "errors"
+import (
+	"errors"
+	"net/http"
+
+	"github.com/iamsumit/sample-go-app/pkg/db"
+)
 
 var (
 	// ErrDuplicateEmail occurs when a duplicate email is used to create/update a user.
-	ErrDuplicateEmail = errors.New("email already exists")
+	ErrDuplicateEmail = db.NewError(
+		errors.New("email already exists"),
+		http.StatusConflict,
+		nil,
+	)
 
 	// ErrUserNotFound is returned when the user is not found.
-	ErrUserNotFound = errors.New("user not found")
+	ErrUserNotFound = db.NewError(
+		errors.New("user not found"),
+		http.StatusNotFound,
+		nil,
+	)
 )

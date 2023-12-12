@@ -2,7 +2,7 @@
 //
 // It can be used to retrieve and store user information by given methods.
 // It provides User model to be used to pass and retrieve user information.
-package user // import "github.com/iamsumit/sample-go-app/sample/internal/handler/entitygrp/user/v1"
+package user
 
 import (
 	"context"

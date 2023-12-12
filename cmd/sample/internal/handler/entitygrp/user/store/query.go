@@ -58,11 +58,7 @@ func (h *Handler) ByID(_ context.Context, id int) (*User, error) {
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, db.NewError(
-				ErrUserNotFound,
-				http.StatusNotFound,
-				nil,
-			)
+			return nil, ErrUserNotFound
 		}
 
 		return nil, db.NewError(
@@ -122,11 +118,7 @@ func (h *Handler) ByEmail(_ context.Context, email string) (*User, error) {
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, db.NewError(
-				ErrUserNotFound,
-				http.StatusNotFound,
-				nil,
-			)
+			return nil, ErrUserNotFound
 		}
 
 		return nil, db.NewError(
@@ -145,15 +137,13 @@ func (h *Handler) Create(ctx context.Context, user User) (*User, error) {
 		// If email is provided, it must be unique.
 		existingUser, err := h.ByEmail(ctx, *user.Email)
 		if err != nil && !errors.Is(err, ErrUserNotFound) {
+
 			return nil, err
 		}
 
 		if existingUser != nil {
-			return nil, db.NewError(
-				ErrDuplicateEmail,
-				http.StatusConflict,
-				nil,
-			)
+
+			return nil, ErrDuplicateEmail
 		}
 	}
 
@@ -186,6 +176,7 @@ func (h *Handler) Create(ctx context.Context, user User) (*User, error) {
 	// Get the last insert id.
 	id, err := result.LastInsertId()
 	if err != nil {
+
 		return nil, db.NewError(
 			fmt.Errorf("internal: user.Create: unable to get last insert id: %w", err),
 			http.StatusInternalServerError,
@@ -203,6 +194,7 @@ func (h *Handler) Create(ctx context.Context, user User) (*User, error) {
 			user.Settings.DateOfBirth,
 		).ToSql()
 	if err != nil {
+
 		return nil, db.NewError(
 			fmt.Errorf("internal: user.Create - unable to build user settings insert query: %w", err),
 			http.StatusInternalServerError,
@@ -213,6 +205,7 @@ func (h *Handler) Create(ctx context.Context, user User) (*User, error) {
 	// Insert the user settings in the database.
 	row := h.db.QueryRow(query, args...)
 	if row.Err() != nil {
+
 		return nil, db.NewError(
 			fmt.Errorf("internal: user.Create - unable to insert user settings: %w", err),
 			http.StatusInternalServerError,
@@ -223,6 +216,7 @@ func (h *Handler) Create(ctx context.Context, user User) (*User, error) {
 	// Get the last created user.
 	createdUser, err := h.ByID(ctx, int(id))
 	if err != nil {
+
 		return nil, err
 	}
 

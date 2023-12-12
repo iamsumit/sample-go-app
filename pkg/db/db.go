@@ -1,4 +1,4 @@
-package db // import "github.com/iamsumit/sample-go-app/pkg/db"
+package db
 
 import (
 	"database/sql"

@@ -1,4 +1,4 @@
-package slog // import "github.com/iamsumit/sample-go-app/pkg/logger/internal/slog"
+package slog
 
 import (
 	"os"

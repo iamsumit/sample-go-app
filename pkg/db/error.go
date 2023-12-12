@@ -1,51 +1,38 @@
 package db
 
 import (
-	"errors"
 	"strings"
+
+	errpkg "github.com/iamsumit/sample-go-app/pkg/error"
 )
 
-var (
-	// ErrInternal is the default error message for any database related errors.
-	//
-	// Actual error will be logged.
-	ErrInternal = errors.New("something went wrong internally")
-)
-
-// Error is a custom error type that holds the error message and status code.
-//
-// It can be validated by using errors.As() or err.(type) function.
-type Error struct {
-	// Err is the error message.
-	Err error
-
-	// Status is the HTTP status code.
-	Status int
-
-	// Attributes is a map of field name and error.
-	Attributes map[string]interface{}
-}
+// ErrorType is the error type for the errors returned by this package.
+var ErrorType = "database"
 
 // NewError returns a new error instance with the given error message and
 // status code.
 //
 // The attr values will be returned in the API response to the client.
-func NewError(err error, status int, attr map[string]interface{}) *Error {
-	return &Error{
-		Err:        err,
-		Status:     status,
-		Attributes: attr,
-	}
-}
-
-// Error implements the error interface. It uses the default message of the
-// wrapped error. This is what will be shown in the services' logs.
-func (e *Error) Error() string {
-	msg := e.Err.Error()
-
-	if strings.HasPrefix(msg, "internal:") {
-		return ErrInternal.Error()
+func NewError(err error, status int, attr map[string]interface{}) *errpkg.Error {
+	// Set the status code and attribtues.
+	opts := []errpkg.Option{
+		errpkg.WithStatus(status),
+		errpkg.WithAttributes(attr),
 	}
 
-	return msg
+	// For any internal prefixed error, use a generic message.
+	if strings.HasPrefix(err.Error(), "internal:") {
+		opts = append(
+			opts,
+			errpkg.WithMessage("something went wrong internally"),
+		)
+	}
+
+	e := errpkg.New(
+		err,
+		ErrorType,
+		opts...,
+	)
+
+	return e
 }
