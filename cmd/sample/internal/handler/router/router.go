@@ -36,6 +36,7 @@ import (
 	"github.com/iamsumit/sample-go-app/pkg/api/middleware"
 	"github.com/iamsumit/sample-go-app/pkg/logger"
 	pUserV1 "github.com/iamsumit/sample-go-app/sample/internal/handler/entitygrp/user/v1"
+	redoc "github.com/mvrilo/go-redoc"
 	swgui "github.com/swaggest/swgui/v5cdn"
 )
 
@@ -96,11 +97,12 @@ func SetV1Routes(a *api.API, cfg Config) {
 	a.Handle(http.MethodGet, "/v1/user/{id}", userV1.ByID)
 	a.Handle(http.MethodPost, "/v1/user", userV1.CreateUser)
 
-	ServeDocsRoutes(a, "v1")
+	ServeSWGUIDocsRoutes(a, "v1")
+	ServeReDocsRoutes(a, "v1")
 }
 
-// ServeDocsRoutes serves the swagger documentation routes.
-func ServeDocsRoutes(a *api.API, version string) {
+// ServeSWGUIDocsRoutes serves the swagger documentation routes usign swgui.
+func ServeSWGUIDocsRoutes(a *api.API, version string) {
 	// -------------------------------------------------------------------
 	// Swagger JSON
 	// -------------------------------------------------------------------
@@ -120,14 +122,31 @@ func ServeDocsRoutes(a *api.API, version string) {
 	// -------------------------------------------------------------------
 	// Swagger UI
 	// -------------------------------------------------------------------
-	docPath := fmt.Sprintf("/%s/docs", version)
+	docPath := fmt.Sprintf("/%s/swgui-doc", version)
 	a.Handle(http.MethodGet, docPath, func(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 		swgui.New(
 			"Sample API",
 			vSwagPath,
-			"/v1/docs",
+			docPath,
 		).ServeHTTP(w, r)
 
+		return nil
+	})
+}
+
+// ServeReDocsRoutes serves the swagger documentation using redoc library.
+func ServeReDocsRoutes(a *api.API, version string) {
+	swagJSONPath := filepath.Join("./docs", "swagger", version, "/swagger.json")
+	doc := redoc.Redoc{
+		Title:       "Sample API",
+		Description: "Sample V1 API",
+		SpecFile:    swagJSONPath,
+		SpecPath:    fmt.Sprintf("/%s/swagger.json", version),
+		DocsPath:    fmt.Sprintf("/%s/redoc", version),
+	}
+
+	a.Handle(http.MethodGet, doc.DocsPath, func(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+		doc.Handler().ServeHTTP(w, r)
 		return nil
 	})
 }

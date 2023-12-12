@@ -45,6 +45,7 @@ There are certain dependencies that we have to install first before we can run t
 - [protobuf][13] though, it can be installed using task command.
 - [docker][14] The pub/sub and mysql will be running inside the docker container.
 - [golang-lint][23] This is a tool to check the linting errors.
+- [go-swagger][24] It is a tool to generate the swagger documentation. It can be installed using given task command.
 
 ### Start the application
 
@@ -58,8 +59,6 @@ There are certain dependencies that we have to install first before we can run t
 ![grafana datasource config](./docs/images/grafana-datasource-config.png)
 
 ![grafana dashboard](./docs/images/grafana-dashboard.png)
-
-There are some commented code as well which is basically either because of no secret key and/or there are multiple way of doing things, like reloading the configuration on change without re-running the application.
 
 #### Message Application:
 
@@ -99,3 +98,4 @@ There are certain task commands to run the applications. Lets go step by step:
 [21]:https://github.com/gorilla/mux
 [22]:https://doc.traefik.io/traefik
 [23]:https://github.com/golangci/golangci-lint
+[24]:https://github.com/go-swagger/go-swagger

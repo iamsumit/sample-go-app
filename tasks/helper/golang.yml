@@ -4,13 +4,19 @@ version: 3
 
 tasks:
   lint:
-    desc: Run golangci-lint in the current folder.
+    desc: Run golangci-lint in the given folder.
     dir: "{{ .GO_PROJECT_FOLDER }}"
     cmds:
       - golangci-lint run -E goimports -v
 
   vet:
-    desc: Run go vet in the current folder.
+    desc: Run go vet in the given folder.
     dir: "{{ .GO_PROJECT_FOLDER }}"
     cmds:
       - go vet ./...
+
+  test:
+    desc: Run go tests in the given folder.
+    dir: "{{ .GO_PROJECT_FOLDER }}"
+    cmds:
+      - go test ./...

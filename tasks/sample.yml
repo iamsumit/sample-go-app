@@ -4,6 +4,7 @@ version: 3
 
 includes:
   docker: ./helper/docker.yml
+  swagger: ./helper/swagger.yml
   go: ./helper/golang.yml
   prometheus: ./service/prometheus.yml
   jaeger: ./service/jaeger.yml
@@ -18,6 +19,11 @@ tasks:
     cmds:
       - cp .env.sample .env
     dir: '{{ .SAMPLE_APP_DIR }}'
+  
+  setup-deps:
+    desc: "Setup the basic dependencies to run the application."
+    cmds:
+      - task: swagger:install
 
   migrate:
     desc: "Migrate the sample application's database."
@@ -32,7 +38,7 @@ tasks:
     desc: "Generate the swagger documentation for the sample application."
     cmds:
       - swagger generate spec -o {{ .DOCS_DIR }}/v1/swagger.json --scan-models
-      - swagger generate spec -o {{ .DOCS_DIR }}/v1/swagger.json -o {{ .DOCS_DIR }}/v1/swagger.yml
+      - swagger generate spec -o {{ .DOCS_DIR }}/v1/swagger.yml --scan-models
       - swagger generate markdown --spec={{ .DOCS_DIR }}/v1/swagger.yml --output {{ .DOCS_DIR }}/v1/api.md
     vars:
       DOCS_DIR: ./docs/swagger
@@ -66,6 +72,15 @@ tasks:
         vars:
           GO_PROJECT_FOLDER: '{{ .SAMPLE_APP_DIR }}'
       - task: go:lint
+        vars:
+          GO_PROJECT_FOLDER: '{{ .SAMPLE_APP_DIR }}'
+    dir: '{{ .SAMPLE_APP_DIR }}'
+
+  run-tests:
+    desc: "Run the unit and integration testing in golang."
+    dotenv: [.env]
+    cmds:
+      - task: go:test
         vars:
           GO_PROJECT_FOLDER: '{{ .SAMPLE_APP_DIR }}'
     dir: '{{ .SAMPLE_APP_DIR }}'

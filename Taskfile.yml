@@ -16,6 +16,7 @@ tasks:
   setup-deps:
     desc: Setup the basic dependencies to run the application.
     cmds:
+      - task: sample:setup-deps
       - task: message:setup-deps
 
   init:
