@@ -1,0 +1,11 @@
+mysql:
+  name: sample_db
+  user: root
+  password: root
+  host: localhost
+  port: 8086
+launch_darkly:
+  secret_key: some-secret-key
+jaeger:
+  host: "no-matter"
+  path: "no-matter"
