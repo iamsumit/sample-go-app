@@ -38,7 +38,7 @@ func TestV1Routes(t *testing.T) {
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
 
-	h := ConfigureRoutes(shutdown, nil, Config{
+	h := ConfigureRoutes(shutdown, nil, nil, Config{
 		Log: logger.Default(),
 		DB:  sqlDB,
 	}, nil)

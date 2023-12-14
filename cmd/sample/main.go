@@ -13,11 +13,11 @@ import (
 	"github.com/iamsumit/sample-go-app/pkg/db"
 	"github.com/iamsumit/sample-go-app/pkg/logger"
 	smetrics "github.com/iamsumit/sample-go-app/pkg/metrics"
+	"github.com/iamsumit/sample-go-app/pkg/observation/metrics"
 	"github.com/iamsumit/sample-go-app/pkg/tracer"
 	"github.com/iamsumit/sample-go-app/pkg/util/app"
 	"github.com/iamsumit/sample-go-app/sample/internal/config"
 	"github.com/iamsumit/sample-go-app/sample/internal/handler/router"
-	"github.com/iamsumit/sample-go-app/sample/internal/observation/metrics"
 	"github.com/spf13/viper"
 )
 
@@ -73,37 +73,6 @@ func start(log logger.Logger) error {
 	}
 
 	// -------------------------------------------------------------------
-	// Tracer
-	// -------------------------------------------------------------------
-
-	// Once initiated, it will set the global tracer provider.
-	//
-	// tracer.Global("sample") can be used to get the global tracer instance.
-	_, err = tracer.New(context.Background(), &tracer.Config{
-		Name:        app.Name(),
-		ServiceName: app.Name(),
-		Jaeger: tracer.JaegerConfig{
-			Host: configuration.Jaeger.Host,
-			Path: configuration.Jaeger.Path,
-		},
-	})
-	if err != nil {
-		return err
-	}
-
-	// -------------------------------------------------------------------
-	// Observation:- Metrics
-	// -------------------------------------------------------------------
-	mInt, err := metrics.New(
-		app.Name(),
-		metrics.WithMetricsProvider(mProvider),
-		metrics.WithNoMetricsPath([]string{"/metrics"}),
-	)
-	if err != nil {
-		return err
-	}
-
-	// -------------------------------------------------------------------
 	// Database
 	// -------------------------------------------------------------------
 	sqlDB, err := db.New(db.Config{
@@ -137,6 +106,43 @@ func start(log logger.Logger) error {
 	)
 
 	// -------------------------------------------------------------------
+	// Tracer
+	// -------------------------------------------------------------------
+
+	// Once initiated, it will set the global tracer provider.
+	//
+	// tracer.Global("sample") can be used to get the global tracer instance.
+	_, err = tracer.New(context.Background(), &tracer.Config{
+		Name:        app.Name(),
+		ServiceName: app.Name(),
+		Jaeger: tracer.JaegerConfig{
+			Host: configuration.Jaeger.Host,
+			Path: configuration.Jaeger.Path,
+		},
+	})
+	if err != nil {
+		return err
+	}
+
+	// -------------------------------------------------------------------
+	// Observation:- Metrics
+	// -------------------------------------------------------------------
+
+	// Exclude paths from the metrics and tracing.
+	exPaths := []string{
+		"/metrics",
+	}
+
+	mInt, err := metrics.New(
+		app.Name(),
+		metrics.WithMetricsProvider(mProvider),
+		metrics.WithNoMetricsPath(exPaths),
+	)
+	if err != nil {
+		return err
+	}
+
+	// -------------------------------------------------------------------
 	// Routing
 	// -------------------------------------------------------------------
 
@@ -155,7 +161,7 @@ func start(log logger.Logger) error {
 
 	handler := router.ConfigureRoutes(
 		shutdown,
-		[]string{"/metrics"}, // exclude path from tracing.
+		exPaths,
 		routes,
 		router.Config{
 			Log: log,
