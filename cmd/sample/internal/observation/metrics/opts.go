@@ -49,3 +49,13 @@ func WithMetricsProvider(metrics common.Provider) func(*Handler) {
 		m.provider = metrics
 	}
 }
+
+// WithNoMetricsPath sets the no metrics path to the handler.
+//
+// This will not record the metrics for the given paths.
+// This is useful when you want to skip the metrics for health check endpoints.
+func WithNoMetricsPath(ntm []string) func(*Handler) {
+	return func(m *Handler) {
+		m.ntm = ntm
+	}
+}

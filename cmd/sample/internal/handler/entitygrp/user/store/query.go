@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"net/http"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/iamsumit/sample-go-app/pkg/db"
@@ -14,7 +13,7 @@ import (
 // ByID returns the user for the given id.
 //
 //nolint:dupl
-func (h *Handler) ByID(_ context.Context, id int) (*User, error) {
+func (h *Handler) ByID(ctx context.Context, id int) (*User, error) {
 	query, args, err := squirrel.
 		Select(
 			"users.id",
@@ -36,15 +35,18 @@ func (h *Handler) ByID(_ context.Context, id int) (*User, error) {
 			},
 		).ToSql()
 	if err != nil {
-		return nil, db.NewError(
-			fmt.Errorf("internal: user.ByID - unable to build select query: %w", err),
-			http.StatusInternalServerError,
-			nil,
+		return nil, db.ErrInternal(
+			fmt.Errorf("user.ByID - unable to build select query: %w", err),
 		)
 	}
 
 	user := new(User)
-	err = h.db.QueryRow(query, args...).Scan(
+	row, err := db.QueryRowContext(ctx, h.db, "user.ByID", query, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	err = row.Scan(
 		&user.ID,
 		&user.Name,
 		&user.Email,
@@ -61,10 +63,8 @@ func (h *Handler) ByID(_ context.Context, id int) (*User, error) {
 			return nil, ErrUserNotFound
 		}
 
-		return nil, db.NewError(
-			fmt.Errorf("internal: user.ByID - unable to query data: %w", err),
-			http.StatusInternalServerError,
-			nil,
+		return nil, db.ErrInternal(
+			fmt.Errorf("user.ByID - unable to query data: %w", err),
 		)
 	}
 
@@ -74,7 +74,7 @@ func (h *Handler) ByID(_ context.Context, id int) (*User, error) {
 // ByEmail returns the user for the given email.
 //
 //nolint:dupl
-func (h *Handler) ByEmail(_ context.Context, email string) (*User, error) {
+func (h *Handler) ByEmail(ctx context.Context, email string) (*User, error) {
 	query, args, err := squirrel.
 		Select(
 			"users.id",
@@ -96,15 +96,19 @@ func (h *Handler) ByEmail(_ context.Context, email string) (*User, error) {
 			},
 		).ToSql()
 	if err != nil {
-		return nil, db.NewError(
-			fmt.Errorf("internal: user.ByEmail - unable to build select query: %w", err),
-			http.StatusInternalServerError,
-			nil,
+		return nil, db.ErrInternal(
+			fmt.Errorf("user.ByEmail - unable to build select query: %w", err),
 		)
 	}
 
 	user := new(User)
-	err = h.db.QueryRow(query, args...).Scan(
+
+	row, err := db.QueryRowContext(ctx, h.db, "user.ByEmail", query, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	err = row.Scan(
 		&user.ID,
 		&user.Name,
 		&user.Email,
@@ -115,16 +119,13 @@ func (h *Handler) ByEmail(_ context.Context, email string) (*User, error) {
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
-
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrUserNotFound
 		}
 
-		return nil, db.NewError(
-			fmt.Errorf("internal: user.ByEmail - unable to query data: %w", err),
-			http.StatusInternalServerError,
-			nil,
+		return nil, db.ErrInternal(
+			fmt.Errorf("user.ByEmail - unable to query data: %w", err),
 		)
 	}
 
@@ -156,31 +157,22 @@ func (h *Handler) Create(ctx context.Context, user User) (*User, error) {
 			user.IsActive,
 		).ToSql()
 	if err != nil {
-		return nil, db.NewError(
-			fmt.Errorf("internal: user.Create - unable to build user insert query: %w", err),
-			http.StatusInternalServerError,
-			nil,
+		return nil, db.ErrInternal(
+			fmt.Errorf("user.Create - unable to build user insert query: %w", err),
 		)
 	}
 
 	// Insert the user in the database.
-	result, err := h.db.Exec(query, args...)
+	result, err := db.ExecContext(ctx, h.db, "user.Create", query, args...)
 	if err != nil {
-		return nil, db.NewError(
-			fmt.Errorf("internal: user.Create - unable to insert user: %w", err),
-			http.StatusInternalServerError,
-			nil,
-		)
+		return nil, err
 	}
 
 	// Get the last insert id.
 	id, err := result.LastInsertId()
 	if err != nil {
-
-		return nil, db.NewError(
-			fmt.Errorf("internal: user.Create: unable to get last insert id: %w", err),
-			http.StatusInternalServerError,
-			nil,
+		return nil, db.ErrInternal(
+			fmt.Errorf("user.Create: unable to get last insert id: %w", err),
 		)
 	}
 
@@ -194,23 +186,15 @@ func (h *Handler) Create(ctx context.Context, user User) (*User, error) {
 			user.Settings.DateOfBirth,
 		).ToSql()
 	if err != nil {
-
-		return nil, db.NewError(
-			fmt.Errorf("internal: user.Create - unable to build user settings insert query: %w", err),
-			http.StatusInternalServerError,
-			nil,
+		return nil, db.ErrInternal(
+			fmt.Errorf("user.Create - unable to build user settings insert query: %w", err),
 		)
 	}
 
 	// Insert the user settings in the database.
-	row := h.db.QueryRow(query, args...)
-	if row.Err() != nil {
-
-		return nil, db.NewError(
-			fmt.Errorf("internal: user.Create - unable to insert user settings: %w", err),
-			http.StatusInternalServerError,
-			nil,
-		)
+	_, err = db.QueryRowContext(ctx, h.db, "user.Create", query, args...)
+	if err != nil {
+		return nil, err
 	}
 
 	// Get the last created user.

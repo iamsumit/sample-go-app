@@ -14,6 +14,7 @@ import (
 	"github.com/iamsumit/sample-go-app/pkg/logger"
 	smetrics "github.com/iamsumit/sample-go-app/pkg/metrics"
 	"github.com/iamsumit/sample-go-app/pkg/tracer"
+	"github.com/iamsumit/sample-go-app/pkg/util/app"
 	"github.com/iamsumit/sample-go-app/sample/internal/config"
 	"github.com/iamsumit/sample-go-app/sample/internal/handler/router"
 	"github.com/iamsumit/sample-go-app/sample/internal/observation/metrics"
@@ -36,6 +37,8 @@ func main() {
 	// -------------------------------------------------------------------
 	if err := start(log); err != nil {
 		log.Error("Error while starting the server", "error", err)
+
+		return
 	}
 }
 
@@ -72,9 +75,13 @@ func start(log logger.Logger) error {
 	// -------------------------------------------------------------------
 	// Tracer
 	// -------------------------------------------------------------------
+
+	// Once initiated, it will set the global tracer provider.
+	//
+	// tracer.Global("sample") can be used to get the global tracer instance.
 	_, err = tracer.New(context.Background(), &tracer.Config{
-		Name:        "sample",
-		ServiceName: "sample-go-app",
+		Name:        app.Name(),
+		ServiceName: app.Name(),
 		Jaeger: tracer.JaegerConfig{
 			Host: configuration.Jaeger.Host,
 			Path: configuration.Jaeger.Path,
@@ -87,7 +94,11 @@ func start(log logger.Logger) error {
 	// -------------------------------------------------------------------
 	// Observation:- Metrics
 	// -------------------------------------------------------------------
-	mInt, err := metrics.New("sample", metrics.WithMetricsProvider(mProvider))
+	mInt, err := metrics.New(
+		app.Name(),
+		metrics.WithMetricsProvider(mProvider),
+		metrics.WithNoMetricsPath([]string{"/metrics"}),
+	)
 	if err != nil {
 		return err
 	}
@@ -142,10 +153,16 @@ func start(log logger.Logger) error {
 		},
 	}
 
-	handler := router.ConfigureRoutes(shutdown, routes, router.Config{
-		Log: log,
-		DB:  sqlDB,
-	}, mw...)
+	handler := router.ConfigureRoutes(
+		shutdown,
+		[]string{"/metrics"}, // exclude path from tracing.
+		routes,
+		router.Config{
+			Log: log,
+			DB:  sqlDB,
+		},
+		mw...,
+	)
 
 	// -------------------------------------------------------------------
 	// Server

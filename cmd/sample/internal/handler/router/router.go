@@ -53,7 +53,7 @@ type Config struct {
 }
 
 // ConfigureRoutes configures the routes for the application.
-func ConfigureRoutes(shutdown chan os.Signal, routes []Routes, cfg Config, mw ...api.Middleware) http.Handler {
+func ConfigureRoutes(shutdown chan os.Signal, notracepath []string, routes []Routes, cfg Config, mw ...api.Middleware) http.Handler {
 	// -------------------------------------------------------------------
 	// Middlewares
 	// -------------------------------------------------------------------
@@ -63,7 +63,7 @@ func ConfigureRoutes(shutdown chan os.Signal, routes []Routes, cfg Config, mw ..
 	// -------------------------------------------------------------------
 	// API Handler
 	// -------------------------------------------------------------------
-	a := api.New(shutdown, mw...)
+	a := api.New(shutdown, notracepath, mw...)
 
 	// Provides home endpoint.
 	a.Handle(http.MethodGet, "/", func(ctx context.Context, w http.ResponseWriter, r *http.Request) error {

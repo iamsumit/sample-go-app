@@ -98,7 +98,7 @@ func (h *Handler) ByID(ctx context.Context, w http.ResponseWriter, r *http.Reque
 //	  - 409: userResponse409
 func (h *Handler) CreateUser(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	newUser := NewUser{}
-	err := api.Decode(r, h.log, &newUser)
+	err := api.Decode(ctx, r, h.log, &newUser)
 	if err != nil {
 		return err
 	}

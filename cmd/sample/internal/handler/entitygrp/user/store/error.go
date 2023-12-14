@@ -15,13 +15,11 @@ var (
 	ErrDuplicateEmail = db.NewError(
 		errors.New("email already exists"),
 		http.StatusConflict,
-		nil,
 	)
 
 	// ErrUserNotFound is returned when the user is not found.
 	ErrUserNotFound = db.NewError(
 		errors.New("user not found"),
 		http.StatusNotFound,
-		nil,
 	)
 )

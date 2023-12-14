@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/iamsumit/sample-go-app/pkg/metrics/common"
+	"github.com/iamsumit/sample-go-app/pkg/util/strings"
 )
 
 // Handler is the metrics handler.
@@ -16,6 +17,7 @@ type Handler struct {
 	provider common.Provider
 	request  common.Counter
 	latency  common.Counter
+	ntm      []string
 }
 
 // New returns a new metrics handler.
@@ -62,4 +64,13 @@ func (m *Handler) AddLatency(r *http.Request, startTime time.Time) {
 		r.URL.Path,
 		r.Method,
 	)
+}
+
+// isNoMetricsPath checks if the given path is no metrics path.
+func (m *Handler) isNoMetricsPath(r *http.Request) bool {
+	if strings.Contain(m.ntm, r.URL.Path) {
+		return true
+	}
+
+	return false
 }

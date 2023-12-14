@@ -68,6 +68,15 @@ func New(ctx context.Context, config *Config) (*Tracer, error) {
 	}, nil
 }
 
+// Global returns the global tracer instance.
+func Global(name string) *Tracer {
+	t := &Tracer{
+		tracer: otel.Tracer(name),
+	}
+
+	return t
+}
+
 // Start starts a new span with the given operation name.
 func (t Tracer) Start(ctx context.Context, operationName string) (context.Context, trace.Span) {
 	return t.tracer.Start(ctx, operationName)

@@ -72,8 +72,8 @@ func (e *Error) Type() string {
 }
 
 // OriginalError returns the original error.
-func (e *Error) OriginalError() string {
-	return e.original.Error()
+func (e *Error) OriginalError() error {
+	return e.original
 }
 
 // StatusCode returns the status code set in the error.

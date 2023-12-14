@@ -15,6 +15,16 @@ func (m *Handler) Middleware(log logger.Logger) api.Middleware {
 	mw := func(handler api.Handler) api.Handler {
 		// Create the handler that will be attached in the middleware chain.
 		h := func(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+			// If the path is in the no trace path then skip the metrics.
+			if m.isNoMetricsPath(r) {
+				err := handler(ctx, w, r)
+				if err != nil {
+					return err
+				}
+
+				return nil
+			}
+
 			log.Info(
 				"metrics middleware called",
 				"method", r.Method,

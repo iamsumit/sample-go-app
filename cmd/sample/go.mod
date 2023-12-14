@@ -7,6 +7,7 @@ go 1.21
 require (
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/iamsumit/sample-go-app/pkg v0.0.0-00010101000000-000000000000
+	github.com/mitchellh/mapstructure v1.5.0
 	github.com/mvrilo/go-redoc v0.1.4
 	github.com/spf13/viper v1.18.1
 	github.com/swaggest/swgui v1.7.5
@@ -33,7 +34,6 @@ require (
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
-	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
 	github.com/prometheus/client_golang v1.17.0 // indirect
 	github.com/prometheus/client_model v0.5.0 // indirect
