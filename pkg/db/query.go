@@ -42,6 +42,33 @@ func ExecContext(ctx context.Context, s *sql.DB, op string, query string, args .
 // It accepts the context, sql.DB object, operation name, query and arguments.
 // Operation name is used for logging and tracing purposes.
 // It handles the error and tracing.
+// It returns the sql.Rows object and error.
+func QueryContext(ctx context.Context, s *sql.DB, op string, query string, args ...any) (*sql.Rows, error) {
+	// Start the tracing here.
+	ctx, span := tracer.Global("db.QueryContext").Start(ctx, op)
+	defer span.End()
+
+	span.SetAttributes(
+		attribute.String("db.query", query),
+		attribute.String("db.args", fmt.Sprintf("%v", args)),
+	)
+
+	rows, err := s.QueryContext(ctx, query, args...)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		return nil, ErrInternal(
+			fmt.Errorf("%s error: %v", op, err),
+		)
+	}
+
+	return rows, nil
+}
+
+// QueryRowContext is a wrapper to the sql.QueryRowContext.
+//
+// It accepts the context, sql.DB object, operation name, query and arguments.
+// Operation name is used for logging and tracing purposes.
+// It handles the error and tracing.
 // It returns the sql.Row object and error.
 func QueryRowContext(ctx context.Context, s *sql.DB, op string, query string, args ...any) (*sql.Row, error) {
 	// Start the tracing here.

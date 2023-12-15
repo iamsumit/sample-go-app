@@ -10,6 +10,89 @@ import (
 	"github.com/iamsumit/sample-go-app/pkg/db"
 )
 
+// All returns the list of users.
+//
+//nolint:dupl
+func (h *Handler) All(ctx context.Context, pagi db.Pagination) ([]*User, error) {
+	q := squirrel.
+		Select(
+			"users.id",
+			"users.name",
+			"users.email",
+			"users.is_active",
+			"user_settings.is_subscribed",
+			"user_settings.biography",
+			"user_settings.date_of_birth",
+			"users.created_at",
+			"users.updated_at",
+		).
+		From("users").
+		LeftJoin("user_settings ON users.id = user_settings.uid").
+		Where(
+			squirrel.And{
+				squirrel.Eq{"users.deleted_at": nil},
+			},
+		)
+
+	offset, limit := pagi.Range()
+	if limit > 0 {
+		q = q.Offset(uint64(offset))
+		q = q.Limit(uint64(limit))
+	}
+
+	sort, direction := pagi.SortDirection(map[string]string{
+		"created": "users.created_at",
+		"updated": "users.updated_at",
+	})
+	if sort != "" {
+		q = q.OrderBy(sort + " " + direction)
+	}
+
+	query, args, err := q.ToSql()
+	if err != nil {
+		return nil, db.ErrInternal(
+			fmt.Errorf("user.All - unable to build select query: %w", err),
+		)
+	}
+
+	rows, err := db.QueryContext(ctx, h.db, "user.All", query, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	users := make([]*User, 0)
+
+	for rows.Next() {
+		user := new(User)
+		err = rows.Scan(
+			&user.ID,
+			&user.Name,
+			&user.Email,
+			&user.IsActive,
+			&user.Settings.IsSubscribed,
+			&user.Settings.Biography,
+			&user.Settings.DateOfBirth,
+			&user.CreatedAt,
+			&user.UpdatedAt,
+		)
+		if err != nil {
+			return nil, db.ErrInternal(
+				fmt.Errorf("user.All - unable to scan row: %w", err),
+			)
+		}
+
+		if rows.Err() != nil {
+			return nil, db.ErrInternal(
+				fmt.Errorf("user.All - error in scan rows: %w", err),
+			)
+		}
+
+		users = append(users, user)
+	}
+
+	return users, nil
+}
+
 // ByID returns the user for the given id.
 //
 //nolint:dupl

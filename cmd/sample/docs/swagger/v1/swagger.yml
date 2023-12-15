@@ -63,6 +63,53 @@ definitions:
         type: object
         x-go-name: NewUser
         x-go-package: github.com/iamsumit/sample-go-app/sample/internal/handler/entitygrp/user/v1
+    list:
+        properties:
+            direction:
+                description: |-
+                    The direction of the sort
+
+                    in: query
+                enum:
+                    - asc
+                    - desc
+                type: string
+                x-go-name: Direction
+            page:
+                description: |-
+                    The current page
+
+                    in: query
+                    type: integer
+                format: int64
+                minimum: 1
+                type: integer
+                x-go-name: Page
+            per_page:
+                description: |-
+                    The per page limit
+
+                    in: query
+                    type: integer
+                format: int64
+                maximum: 100
+                minimum: 1
+                type: integer
+                x-go-name: PerPage
+            sort:
+                description: |-
+                    The column to sort on
+
+                    in: query
+                enum:
+                    - created
+                    - updated
+                type: string
+                x-go-name: Sort
+        title: Pagination structure to be used by the list endpoints.
+        type: object
+        x-go-name: Pagination
+        x-go-package: github.com/iamsumit/sample-go-app/pkg/db
     user:
         properties:
             created_at:
@@ -192,6 +239,8 @@ paths:
                     $ref: '#/responses/userResponse400'
                 "409":
                     $ref: '#/responses/userResponse409'
+                "500":
+                    $ref: '#/responses/userResponse500'
             schemes:
                 - http
                 - https
@@ -221,10 +270,63 @@ paths:
                     $ref: '#/responses/userResponse400'
                 "404":
                     $ref: '#/responses/userResponse404'
+                "500":
+                    $ref: '#/responses/userResponse500'
             schemes:
                 - http
                 - https
             summary: ByID returns the user for the given id.
+            tags:
+                - users
+    /v1/users:
+        get:
+            consumes:
+                - application/json
+            description: This will help you get you list of the users from database.
+            operationId: listUsers
+            parameters:
+                - description: The current page
+                  format: int64
+                  in: query
+                  minimum: 1
+                  name: page
+                  type: integer
+                  x-go-name: Page
+                - description: The per page limit
+                  format: int64
+                  in: query
+                  maximum: 100
+                  minimum: 1
+                  name: per_page
+                  type: integer
+                  x-go-name: PerPage
+                - description: The column to sort on
+                  enum:
+                    - created
+                    - updated
+                  in: query
+                  name: sort
+                  type: string
+                  x-go-name: Sort
+                - description: The direction of the sort
+                  enum:
+                    - asc
+                    - desc
+                  in: query
+                  name: direction
+                  type: string
+                  x-go-name: Direction
+            produces:
+                - application/json
+            responses:
+                "200":
+                    $ref: '#/responses/userResponse200'
+                "500":
+                    $ref: '#/responses/userResponse500'
+            schemes:
+                - http
+                - https
+            summary: All returns the list of users.
             tags:
                 - users
 produces:
@@ -332,6 +434,31 @@ responses:
                         in: body
                     example:
                         error: user already exists
+                    type: object
+                    x-go-name: Errors
+                success:
+                    description: Success
+                    example: false
+                    type: boolean
+                    x-go-name: Success
+                timestamp:
+                    description: Timestamp
+                    example: 1639237536
+                    format: int64
+                    type: integer
+                    x-go-name: Timestamp
+            type: object
+    userResponse500:
+        description: ""
+        schema:
+            properties:
+                errors:
+                    additionalProperties: {}
+                    description: |-
+                        Data
+                        in: body
+                    example:
+                        error: some internal error occured
                     type: object
                     x-go-name: Errors
                 success:

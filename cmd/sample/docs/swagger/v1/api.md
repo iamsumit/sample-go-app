@@ -39,6 +39,7 @@ there are no TOS at this moment, use at your own risk we take no responsibility
 |---------|---------|--------|---------|
 | POST | /v1/user | [create user](#create-user) | Create a new user by given information. |
 | GET | /v1/user/{id} | [get user](#get-user) | ByID returns the user for the given id. |
+| GET | /v1/users | [list users](#list-users) | All returns the list of users. |
   
 
 
@@ -76,6 +77,7 @@ The uniqueness validation will be done if email is provided.
 | [201](#create-user-201) | Created |  |  | [schema](#create-user-201-schema) |
 | [400](#create-user-400) | Bad Request |  |  | [schema](#create-user-400-schema) |
 | [409](#create-user-409) | Conflict |  |  | [schema](#create-user-409-schema) |
+| [500](#create-user-500) | Internal Server Error |  |  | [schema](#create-user-500-schema) |
 
 #### Responses
 
@@ -106,6 +108,15 @@ Status: Conflict
   
 
 [CreateUserConflictBody](#create-user-conflict-body)
+
+##### <span id="create-user-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="create-user-500-schema"></span> Schema
+   
+  
+
+[CreateUserInternalServerErrorBody](#create-user-internal-server-error-body)
 
 ###### Inlined models
 
@@ -162,6 +173,24 @@ in: body |  |
 
 
 
+**<span id="create-user-internal-server-error-body"></span> CreateUserInternalServerErrorBody**
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| Errors | [interface{}](#interface)| `interface{}` |  | | Data
+in: body | `{"error":"some internal error occured"}` |
+| Success | boolean| `bool` |  | | Success | `false` |
+| Timestamp | int64 (formatted integer)| `int64` |  | | Timestamp | `1639237536` |
+
+
+
 ### <span id="get-user"></span> ByID returns the user for the given id. (*getUser*)
 
 ```
@@ -192,6 +221,7 @@ This will help you get a user information by given id.
 | [200](#get-user-200) | OK |  |  | [schema](#get-user-200-schema) |
 | [400](#get-user-400) | Bad Request |  |  | [schema](#get-user-400-schema) |
 | [404](#get-user-404) | Not Found |  |  | [schema](#get-user-404-schema) |
+| [500](#get-user-500) | Internal Server Error |  |  | [schema](#get-user-500-schema) |
 
 #### Responses
 
@@ -223,6 +253,15 @@ Status: Not Found
 
 [GetUserNotFoundBody](#get-user-not-found-body)
 
+##### <span id="get-user-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="get-user-500-schema"></span> Schema
+   
+  
+
+[GetUserInternalServerErrorBody](#get-user-internal-server-error-body)
+
 ###### Inlined models
 
 **<span id="get-user-bad-request-body"></span> GetUserBadRequestBody**
@@ -239,6 +278,24 @@ Status: Not Found
 | Success | boolean| `bool` |  | | Success | `false` |
 | Timestamp | int64 (formatted integer)| `int64` |  | | Timestamp | `1639237536` |
 | errors | [ErrorResponse](#error-response)| `models.ErrorResponse` |  | |  |  |
+
+
+
+**<span id="get-user-internal-server-error-body"></span> GetUserInternalServerErrorBody**
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| Errors | [interface{}](#interface)| `interface{}` |  | | Data
+in: body | `{"error":"some internal error occured"}` |
+| Success | boolean| `bool` |  | | Success | `false` |
+| Timestamp | int64 (formatted integer)| `int64` |  | | Timestamp | `1639237536` |
 
 
 
@@ -261,6 +318,98 @@ in: body | `{"error":"user not found"}` |
 
 
 **<span id="get-user-o-k-body"></span> GetUserOKBody**
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| Data | [][User](#user)| `[]*models.User` |  | | Data
+in: body |  |
+| Success | boolean| `bool` |  | | Success | `false` |
+| Timestamp | int64 (formatted integer)| `int64` |  | | Timestamp | `1639237536` |
+
+
+
+### <span id="list-users"></span> All returns the list of users. (*listUsers*)
+
+```
+GET /v1/users
+```
+
+This will help you get you list of the users from database.
+
+#### URI Schemes
+  * http
+  * https
+
+#### Consumes
+  * application/json
+
+#### Produces
+  * application/json
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| direction | `query` | string | `string` |  |  |  | The direction of the sort |
+| page | `query` | int64 (formatted integer) | `int64` |  |  |  | The current page |
+| per_page | `query` | int64 (formatted integer) | `int64` |  |  |  | The per page limit |
+| sort | `query` | string | `string` |  |  |  | The column to sort on |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#list-users-200) | OK |  |  | [schema](#list-users-200-schema) |
+| [500](#list-users-500) | Internal Server Error |  |  | [schema](#list-users-500-schema) |
+
+#### Responses
+
+
+##### <span id="list-users-200"></span> 200
+Status: OK
+
+###### <span id="list-users-200-schema"></span> Schema
+   
+  
+
+[ListUsersOKBody](#list-users-o-k-body)
+
+##### <span id="list-users-500"></span> 500
+Status: Internal Server Error
+
+###### <span id="list-users-500-schema"></span> Schema
+   
+  
+
+[ListUsersInternalServerErrorBody](#list-users-internal-server-error-body)
+
+###### Inlined models
+
+**<span id="list-users-internal-server-error-body"></span> ListUsersInternalServerErrorBody**
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| Errors | [interface{}](#interface)| `interface{}` |  | | Data
+in: body | `{"error":"some internal error occured"}` |
+| Success | boolean| `bool` |  | | Success | `false` |
+| Timestamp | int64 (formatted integer)| `int64` |  | | Timestamp | `1639237536` |
+
+
+
+**<span id="list-users-o-k-body"></span> ListUsersOKBody**
 
 
   
@@ -323,6 +472,34 @@ type: string | `user@provider.net` |
 
 in: body
 type: string | `Sumit Kumar` |
+
+
+
+### <span id="pagination"></span> Pagination
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| Direction | string| `string` |  | | The direction of the sort
+
+in: query |  |
+| Page | int64 (formatted integer)| `int64` |  | | The current page
+
+in: query
+type: integer |  |
+| PerPage | int64 (formatted integer)| `int64` |  | | The per page limit
+
+in: query
+type: integer |  |
+| Sort | string| `string` |  | | The column to sort on
+
+in: query |  |
 
 
 

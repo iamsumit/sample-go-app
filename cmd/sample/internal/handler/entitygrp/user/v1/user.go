@@ -31,6 +31,45 @@ func New(log logger.Logger, db *sql.DB) *Handler {
 	}
 }
 
+// swagger:route GET /v1/users users listUsers
+//
+// All returns the list of users.
+//
+// This will help you get you list of the users from database.
+//
+// ---
+//
+//	Consumes:
+//		- application/json
+//
+//	Produces:
+//		- application/json
+//
+//	Schemes: http, https
+//
+//	Responses:
+//		- 200: userResponse200
+//		- 500: userResponse500
+func (h *Handler) All(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	pagi, err := api.PaginationParams(r)
+	if err != nil {
+		return err
+	}
+
+	storeUsers, err := h.store.All(ctx, pagi)
+	if err != nil {
+		return err
+	}
+
+	users := make([]User, len(storeUsers))
+	for i, user := range storeUsers {
+		users[i] = new(User).UpdateFrom(*user)
+	}
+
+	api.Respond(ctx, w, users, http.StatusOK)
+	return nil
+}
+
 // swagger:route GET /v1/user/{id} users getUser
 //
 // ByID returns the user for the given id.
@@ -51,6 +90,7 @@ func New(log logger.Logger, db *sql.DB) *Handler {
 //		- 200: userResponse200
 //		- 404: userResponse404
 //	  - 400: userResponse400
+//		- 500: userResponse500
 func (h *Handler) ByID(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	id := api.Param(r, "id")
 
@@ -69,7 +109,7 @@ func (h *Handler) ByID(ctx context.Context, w http.ResponseWriter, r *http.Reque
 	}
 
 	user := new(User).UpdateFrom(*storeUser)
-	err = api.Respond(ctx, w, user, http.StatusOK)
+	err = api.Respond(ctx, w, []User{user}, http.StatusOK)
 
 	return err
 }
@@ -96,6 +136,7 @@ func (h *Handler) ByID(ctx context.Context, w http.ResponseWriter, r *http.Reque
 //		- 201: userResponse201
 //		- 400: userResponse400
 //	  - 409: userResponse409
+//		- 500: userResponse500
 func (h *Handler) CreateUser(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	newUser := NewUser{}
 	err := api.Decode(ctx, r, h.log, &newUser)
@@ -124,7 +165,7 @@ func (h *Handler) CreateUser(ctx context.Context, w http.ResponseWriter, r *http
 	}
 
 	user := new(User).UpdateFrom(*storeUser)
-	err = api.Respond(ctx, w, user, http.StatusCreated)
+	err = api.Respond(ctx, w, []User{user}, http.StatusCreated)
 
 	return err
 }

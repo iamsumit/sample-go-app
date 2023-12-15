@@ -58,6 +58,9 @@
           },
           "409": {
             "$ref": "#/responses/userResponse409"
+          },
+          "500": {
+            "$ref": "#/responses/userResponse500"
           }
         }
       }
@@ -100,6 +103,80 @@
           },
           "404": {
             "$ref": "#/responses/userResponse404"
+          },
+          "500": {
+            "$ref": "#/responses/userResponse500"
+          }
+        }
+      }
+    },
+    "/v1/users": {
+      "get": {
+        "description": "This will help you get you list of the users from database.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "users"
+        ],
+        "summary": "All returns the list of users.",
+        "operationId": "listUsers",
+        "parameters": [
+          {
+            "minimum": 1,
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "Page",
+            "description": "The current page",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "PerPage",
+            "description": "The per page limit",
+            "name": "per_page",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "created",
+              "updated"
+            ],
+            "type": "string",
+            "x-go-name": "Sort",
+            "description": "The column to sort on",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "x-go-name": "Direction",
+            "description": "The direction of the sort",
+            "name": "direction",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/userResponse200"
+          },
+          "500": {
+            "$ref": "#/responses/userResponse500"
           }
         }
       }
@@ -162,6 +239,47 @@
       },
       "x-go-name": "NewUser",
       "x-go-package": "github.com/iamsumit/sample-go-app/sample/internal/handler/entitygrp/user/v1"
+    },
+    "list": {
+      "type": "object",
+      "title": "Pagination structure to be used by the list endpoints.",
+      "properties": {
+        "direction": {
+          "description": "The direction of the sort\n\nin: query",
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "x-go-name": "Direction"
+        },
+        "page": {
+          "description": "The current page\n\nin: query\ntype: integer",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 1,
+          "x-go-name": "Page"
+        },
+        "per_page": {
+          "description": "The per page limit\n\nin: query\ntype: integer",
+          "type": "integer",
+          "format": "int64",
+          "maximum": 100,
+          "minimum": 1,
+          "x-go-name": "PerPage"
+        },
+        "sort": {
+          "description": "The column to sort on\n\nin: query",
+          "type": "string",
+          "enum": [
+            "created",
+            "updated"
+          ],
+          "x-go-name": "Sort"
+        }
+      },
+      "x-go-name": "Pagination",
+      "x-go-package": "github.com/iamsumit/sample-go-app/pkg/db"
     },
     "user": {
       "type": "object",
@@ -368,6 +486,36 @@
             "x-go-name": "Errors",
             "example": {
               "error": "user already exists"
+            }
+          },
+          "success": {
+            "description": "Success",
+            "type": "boolean",
+            "x-go-name": "Success",
+            "example": false
+          },
+          "timestamp": {
+            "description": "Timestamp",
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "Timestamp",
+            "example": 1639237536
+          }
+        }
+      }
+    },
+    "userResponse500": {
+      "description": "",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "description": "Data\nin: body",
+            "type": "object",
+            "additionalProperties": {},
+            "x-go-name": "Errors",
+            "example": {
+              "error": "some internal error occured"
             }
           },
           "success": {

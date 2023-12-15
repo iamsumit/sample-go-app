@@ -1,4 +1,4 @@
-package router
+package tests
 
 import (
 	"bytes"
@@ -19,6 +19,7 @@ import (
 	"github.com/iamsumit/sample-go-app/pkg/logger"
 	configtest "github.com/iamsumit/sample-go-app/sample/internal/config/test"
 	userv1 "github.com/iamsumit/sample-go-app/sample/internal/handler/entitygrp/user/v1"
+	"github.com/iamsumit/sample-go-app/sample/internal/handler/router"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -38,7 +39,7 @@ func TestV1Routes(t *testing.T) {
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
 
-	h := ConfigureRoutes(shutdown, nil, nil, Config{
+	h := router.ConfigureRoutes(shutdown, nil, nil, router.Config{
 		Log: logger.Default(),
 		DB:  sqlDB,
 	}, nil)
@@ -63,6 +64,10 @@ func TestV1Routes(t *testing.T) {
 		testUserFound(t, h)
 	})
 
+	t.Run("UserList", func(t *testing.T) {
+		testUserList(t, h)
+	})
+
 }
 
 // setupTestDB creates the tables in the test database.
@@ -70,7 +75,7 @@ func setupTestDB(t *testing.T) (*sql.DB, func()) {
 	//------------------------------------------------
 	// Test config
 	//------------------------------------------------
-	cfg, err := configtest.New(t)
+	cfg, err := configtest.New(t, "../../../../config")
 	if err != nil {
 		t.Error(err)
 	}
@@ -133,7 +138,7 @@ func testUserNotFound(t *testing.T, h http.Handler) {
 	}
 }
 
-// testUserInvalidID tests the user not found error.
+// testUserInvalidID tests the invalid user error.
 func testUserInvalidID(t *testing.T, h http.Handler) {
 	req, err := http.NewRequest(http.MethodGet, "/v1/user/ds", nil)
 	if err != nil {
@@ -241,38 +246,33 @@ func testUserCreation(t *testing.T, h http.Handler) {
 	// Verify response body for correct response
 	//------------------------------------------------
 
-	// A success message with user details must exists.
 	response := &api.Response{}
 	if err := json.Unmarshal(recorder.Body.Bytes(), response); err != nil {
 		t.Error(err)
 	}
 
-	// The response must contain the data.
-	if response.Data == nil {
-		t.Error("body returned wrong response: expected response body to contain the user details")
-	}
-
-	user := new(userv1.User)
 	// The data must be decoded into the user struct.
-	err = mapstructure.Decode(response.Data, user)
-	if err != nil {
-		t.Error(err)
+	users := responseToUsers(t, response)
+
+	if len(users) < 1 {
+		t.Errorf("body returned wrong response: expected to have atleast 1 user got %d", len(users))
+		return
 	}
 
-	if user.ID != 1 {
-		t.Errorf("body returned wrong response: expected to have the user with id 1 got %d", user.ID)
+	if users[0].ID != 1 {
+		t.Errorf("body returned wrong response: expected to have the user with id 1 got %d", users[0].ID)
 	}
 
-	if user.Name != "Some Name" {
-		t.Errorf("body returned wrong response: expected to have the user with name Some Name got %s", user.Name)
+	if users[0].Name != "Some Name" {
+		t.Errorf("body returned wrong response: expected to have the user with name Some Name got %s", users[0].Name)
 	}
 
-	if *user.Settings.Biography != "Some bio" {
-		t.Errorf("body returned wrong response: expected to have the user with bio Some bio got %s", *user.Settings.Biography)
+	if *users[0].Settings.Biography != "Some bio" {
+		t.Errorf("body returned wrong response: expected to have the user with bio Some bio got %s", *users[0].Settings.Biography)
 	}
 
-	if *user.Settings.Email != "someemail@test.com" {
-		t.Errorf("body returned wrong response: expected to have the user with email someemail@test.com got %s", *user.Settings.Email)
+	if *users[0].Settings.Email != "someemail@test.com" {
+		t.Errorf("body returned wrong response: expected to have the user with email someemail@test.com got %s", *users[0].Settings.Email)
 	}
 }
 
@@ -312,9 +312,13 @@ func testUserDuplication(t *testing.T, h http.Handler) {
 
 }
 
-// testUserFound tests the user not found error.
+// testUserFound tests the user detail.
 func testUserFound(t *testing.T, h http.Handler) {
-	// Create a GET request for a user that does not exist yet.
+	//------------------------------------------------
+	// Verify response body for correct response
+	//------------------------------------------------
+
+	// Create a GET request for a user detail.
 	req, err := http.NewRequest(http.MethodGet, "/v1/user/1", nil)
 	if err != nil {
 		t.Fatal(err)
@@ -330,41 +334,124 @@ func testUserFound(t *testing.T, h http.Handler) {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
-	//------------------------------------------------
-	// Verify response body for correct response
-	//------------------------------------------------
-
-	// A success message with user details must exists.
 	response := &api.Response{}
 	if err := json.Unmarshal(recorder.Body.Bytes(), response); err != nil {
 		t.Error(err)
 	}
 
-	// The response must contain the data.
-	if response.Data == nil {
-		t.Error("body returned wrong response: expected response body to contain the user details")
+	// The data must be decoded into the user struct.
+	users := responseToUsers(t, response)
+
+	if len(users) < 1 {
+		t.Errorf("body returned wrong response: expected to have atleast 1 user got %d", len(users))
+		return
 	}
 
-	user := new(userv1.User)
+	if users[0].ID != 1 {
+		t.Errorf("body returned wrong response: expected to have the user with id 1 got %d", users[0].ID)
+	}
+
+	if users[0].Name != "Some Name" {
+		t.Errorf("body returned wrong response: expected to have the user with name Some Name got %s", users[0].Name)
+	}
+
+	if *users[0].Settings.Biography != "Some bio" {
+		t.Errorf("body returned wrong response: expected to have the user with bio Some bio got %s", *users[0].Settings.Biography)
+	}
+
+	if *users[0].Settings.Email != "someemail@test.com" {
+		t.Errorf("body returned wrong response: expected to have the user with email someemail@test.com got %s", *users[0].Settings.Email)
+	}
+}
+
+// testUserList tests the user listing.
+func testUserList(t *testing.T, h http.Handler) {
+	//------------------------------------------------
+	// Verify that no user is returned on second page
+	//------------------------------------------------
+
+	// Create a GET request for a user listing page returning no result on given page.
+	req, err := http.NewRequest(http.MethodGet, "/v1/users?page=2", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Record the response
+	recorder := httptest.NewRecorder()
+	// Serve the request to the router
+	h.ServeHTTP(recorder, req)
+
+	// Check the status code
+	if status := recorder.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	response := &api.Response{}
+	if err := json.Unmarshal(recorder.Body.Bytes(), response); err != nil {
+		t.Error(err)
+	}
+
 	// The data must be decoded into the user struct.
-	err = mapstructure.Decode(response.Data, user)
+	users := responseToUsers(t, response)
+
+	if len(users) >= 1 {
+		t.Errorf("body returned wrong response: expected to have atleast 0 user got %d", len(users))
+	}
+
+	//------------------------------------------------
+	// Verify that user is returned on default page
+	//------------------------------------------------
+
+	// Create a GET request for a user that does not exist yet.
+	req, err = http.NewRequest(http.MethodGet, "/v1/users", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Record the response
+	recorder = httptest.NewRecorder()
+	// Serve the request to the router
+	h.ServeHTTP(recorder, req)
+
+	// Check the status code
+	if status := recorder.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	response = &api.Response{}
+	if err := json.Unmarshal(recorder.Body.Bytes(), response); err != nil {
+		t.Error(err)
+	}
+
+	// The data must be decoded into the user struct.
+	users = responseToUsers(t, response)
+
+	if users[0].ID != 1 {
+		t.Errorf("body returned wrong response: expected to have the user with id 1 got %d", users[0].ID)
+	}
+
+	if users[0].Name != "Some Name" {
+		t.Errorf("body returned wrong response: expected to have the user with name Some Name got %s", users[0].Name)
+	}
+
+	if *users[0].Settings.Biography != "Some bio" {
+		t.Errorf("body returned wrong response: expected to have the user with bio Some bio got %s", *users[0].Settings.Biography)
+	}
+
+	if *users[0].Settings.Email != "someemail@test.com" {
+		t.Errorf("body returned wrong response: expected to have the user with email someemail@test.com got %s", *users[0].Settings.Email)
+	}
+}
+
+// responseToUsers converts the response data to user type.
+func responseToUsers(t *testing.T, response *api.Response) []*userv1.User {
+	users := make([]*userv1.User, 0)
+
+	// The data must be decoded into the user struct.
+	err := mapstructure.Decode(response.Data, &users)
 	if err != nil {
 		t.Error(err)
 	}
 
-	if user.ID != 1 {
-		t.Errorf("body returned wrong response: expected to have the user with id 1 got %d", user.ID)
-	}
-
-	if user.Name != "Some Name" {
-		t.Errorf("body returned wrong response: expected to have the user with name Some Name got %s", user.Name)
-	}
-
-	if *user.Settings.Biography != "Some bio" {
-		t.Errorf("body returned wrong response: expected to have the user with bio Some bio got %s", *user.Settings.Biography)
-	}
-
-	if *user.Settings.Email != "someemail@test.com" {
-		t.Errorf("body returned wrong response: expected to have the user with email someemail@test.com got %s", *user.Settings.Email)
-	}
+	return users
 }

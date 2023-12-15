@@ -8,10 +8,10 @@ import (
 )
 
 // New returns a new config for testing.
-func New(t *testing.T) (*config.Config, error) {
+func New(t *testing.T, configDirPath string) (*config.Config, error) {
 	viper.SetConfigName("config-test")
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("../../../config")
+	viper.AddConfigPath(configDirPath)
 
 	// Read through environment variable.
 	viper.SetEnvPrefix("SAMPLE")
