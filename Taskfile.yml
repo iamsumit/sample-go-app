@@ -4,12 +4,14 @@ version: 3
 
 includes:
   sample: ./tasks/sample.yml
+  activity: ./tasks/activity.yml
   message: ./tasks/message.yml
   traefik: ./tasks/service/traefik.yml
   go: ./tasks/helper/golang.yml
 
 vars:
   SAMPLE_APP_DIR: ./cmd/sample
+  ACTIVITY_APP_DIR: ./cmd/activity
   PKG_DIR: ./pkg
 
 tasks:
@@ -18,6 +20,7 @@ tasks:
     cmds:
       - task: sample:setup-deps
       - task: message:setup-deps
+      - task: activity:setup-deps
 
   init:
     desc: Initialize the development environment
@@ -36,6 +39,10 @@ tasks:
     cmds:
       - task: traefik:down
       - task: sample:down
+      - task: activity:down
+      - task: sample:grafana:down
+      - task: sample:prometheus:down
+      - task: sample:jaeger:down
 
   go-checks:
     desc: "To run all the code checks for the sample application."
@@ -46,6 +53,12 @@ tasks:
       - task: go:lint
         vars:
           GO_PROJECT_FOLDER: '{{ .SAMPLE_APP_DIR }}'
+      - task: go:vet
+        vars:
+          GO_PROJECT_FOLDER: '{{ .ACTIVITY_APP_DIR }}'
+      - task: go:lint
+        vars:
+          GO_PROJECT_FOLDER: '{{ .ACTIVITY_APP_DIR }}'
       - task: go:vet
         vars:
           GO_PROJECT_FOLDER: '{{ .PKG_DIR }}'

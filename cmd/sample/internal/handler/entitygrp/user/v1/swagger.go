@@ -147,7 +147,7 @@ type _ struct {
 }
 
 // Swagger response is used in various user routes for a failed response
-// because of 400.
+// because of 409.
 //
 // GET /v1/user/{id}
 // POST /v1/user

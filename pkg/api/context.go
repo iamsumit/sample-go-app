@@ -30,7 +30,7 @@ func GetContextValues(ctx context.Context) (*ContextValues, error) {
 func SetStatusCode(ctx context.Context, statusCode int) error {
 	v, ok := ctx.Value(key).(*ContextValues)
 	if !ok {
-		return errors.New("api value missing from context")
+		return errors.New("status code value missing from context")
 	}
 	v.StatusCode = statusCode
 	return nil
@@ -40,7 +40,7 @@ func SetStatusCode(ctx context.Context, statusCode int) error {
 func SetIsError(ctx context.Context) error {
 	v, ok := ctx.Value(key).(*ContextValues)
 	if !ok {
-		return errors.New("api value missing from context")
+		return errors.New("isError value missing from context")
 	}
 	v.IsError = true
 	return nil

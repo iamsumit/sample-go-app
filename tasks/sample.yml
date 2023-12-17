@@ -9,7 +9,6 @@ includes:
   prometheus: ./service/prometheus.yml
   jaeger: ./service/jaeger.yml
   grafana: ./service/grafana.yml
-  db: ./service/db.yml
 
 tasks:
   init:
@@ -24,6 +23,20 @@ tasks:
     desc: "Setup the basic dependencies to run the application."
     cmds:
       - task: swagger:install
+
+  db:up:
+    desc: "Start the sample application's database."
+    cmds:
+      - task: docker:up
+        vars:
+          SERVICE_NAME: db
+  
+  db:down:
+    desc: "Stop the sample application's database."
+    cmds:
+      - task: docker:down
+        vars:
+          SERVICE_NAME: db
 
   migrate:
     desc: "Migrate the sample application's database."
@@ -47,6 +60,7 @@ tasks:
   up:
     desc: "Start the sample application."
     cmds:
+      - task: db:up
       - task: docker:up
         vars:
           SERVICE_NAME: sample
@@ -57,6 +71,7 @@ tasks:
       - task: docker:down
         vars:
           SERVICE_NAME: sample
+      - task: db:down
 
   restart:
     desc: "Restart the sample application."
@@ -96,7 +111,6 @@ tasks:
     desc: "Start the sample application and its dependent services."
     dotenv: ['.env']
     cmds:
-      - task: db:up
       - task: jaeger:up
       - task: grafana:up
       - task: up
@@ -108,8 +122,4 @@ tasks:
     dotenv: ['.env']
     cmds:
       - task: down
-      - task: db:down
-      - task: grafana:down
-      - task: prometheus:down
-      - task: jaeger:down
     dir: '{{ .SAMPLE_APP_DIR }}'

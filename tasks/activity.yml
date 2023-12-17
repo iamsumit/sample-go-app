@@ -1,0 +1,125 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/taskfile.json
+version: 3
+
+includes:
+  docker: ./helper/docker.yml
+  swagger: ./helper/swagger.yml
+  go: ./helper/golang.yml
+  prometheus: ./service/prometheus.yml
+  jaeger: ./service/jaeger.yml
+  grafana: ./service/grafana.yml
+
+tasks:
+  init:
+    desc: "Setup the environment variables."
+    status:
+      - test -f .env
+    cmds:
+      - cp .env.sample .env
+    dir: '{{ .ACTIVITY_APP_DIR }}'
+
+  setup-deps:
+    desc: "Setup the basic dependencies to run the application."
+    cmds:
+      - task: swagger:install
+
+  db:up:
+    desc: "Start the activity application's database."
+    cmds:
+      - task: docker:up
+        vars:
+          SERVICE_NAME: activitydb
+  
+  db:down:
+    desc: "Stop the activity application's database."
+    cmds:
+      - task: docker:down
+        vars:
+          SERVICE_NAME: activitydb
+
+  migrate:
+    desc: "Migrate the sample application's database."
+    deps:
+      - task: db:up
+    cmds:
+      - task: docker:up
+        vars:
+          SERVICE_NAME: activity_migrator
+
+  generate:docs:
+    desc: "Generate the swagger documentation for the sample application."
+    cmds:
+      - swagger generate spec -o {{ .DOCS_DIR }}/v1/swagger.json --scan-models
+      - swagger generate spec -o {{ .DOCS_DIR }}/v1/swagger.yml --scan-models
+      - swagger generate markdown --spec={{ .DOCS_DIR }}/v1/swagger.yml --output {{ .DOCS_DIR }}/v1/api.md
+    vars:
+      DOCS_DIR: ./docs/swagger
+    dir: '{{ .ACTIVITY_APP_DIR }}'
+
+  up:
+    desc: "Start the activity application."
+    cmds:
+      - task: db:up
+      - task: docker:up
+        vars:
+          SERVICE_NAME: activity
+
+  down:
+    desc: "Stop the activity application."
+    cmds:
+      - task: docker:down
+        vars:
+          SERVICE_NAME: activity
+      - task: db:down
+
+  restart:
+    desc: "Restart the activity application."
+    cmds:
+      - task: docker:restart
+        vars:
+          SERVICE_NAME: activity
+
+  go-checks:
+    desc: "To run all the code checks for the activity application."
+    cmds:
+      - task: go:vet
+        vars:
+          GO_PROJECT_FOLDER: '{{ .ACTIVITY_APP_DIR }}'
+      - task: go:lint
+        vars:
+          GO_PROJECT_FOLDER: '{{ .ACTIVITY_APP_DIR }}'
+    dir: '{{ .ACTIVITY_APP_DIR }}'
+
+  run-tests:
+    desc: "Run the unit and integration testing in golang."
+    dotenv: [.env]
+    cmds:
+      - task: go:test
+        vars:
+          GO_PROJECT_FOLDER: '{{ .ACTIVITY_APP_DIR }}'
+    dir: '{{ .ACTIVITY_APP_DIR }}'
+
+  run-local:
+    desc: "Start the sample application locally. For docker internals only."
+    dotenv: [.env]
+    cmds:
+      - go run main.go
+    dir: '{{ .ACTIVITY_APP_DIR }}'
+
+  start:
+    desc: "Start the sample application and its dependent services."
+    dotenv: ['.env']
+    cmds:
+      - task: jaeger:up
+      - task: grafana:up
+      - task: up
+      - task: prometheus:up
+    dir: '{{ .ACTIVITY_APP_DIR }}'
+
+  stop:
+    desc: "Stop the sample application and its dependent services."
+    dotenv: ['.env']
+    cmds:
+      - task: down
+    dir: '{{ .ACTIVITY_APP_DIR }}'

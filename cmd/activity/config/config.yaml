@@ -1,0 +1,11 @@
+db:
+  name: activity_db
+  user: user
+  password: password
+  host: activity_db
+  port: 5432
+launch_darkly:
+  secret_key: some-secret-key
+jaeger:
+  host: "sample_jaeger:4318"
+  path: "/v1/traces"

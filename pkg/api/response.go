@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"time"
 
+	errpkg "github.com/iamsumit/sample-go-app/pkg/error"
+	"github.com/iamsumit/sample-go-app/pkg/logger"
 	"github.com/iamsumit/sample-go-app/pkg/tracer"
 	"go.opentelemetry.io/otel/codes"
 )
@@ -103,6 +105,55 @@ func Respond(ctx context.Context, w http.ResponseWriter, data interface{}, statu
 	// Send the result back to the client
 	if _, err := w.Write(jd); err != nil {
 		return fmt.Errorf("write fail: %+v", jd)
+	}
+
+	return nil
+}
+
+// RespondWithError returns parsed error to client.
+func RespondWithError(ctx context.Context, w http.ResponseWriter, log logger.Logger, err error) error {
+	// Log the error.
+	log.Error("CLIENT ERROR", "error", err)
+
+	// Set the error in the context.
+	SetIsError(ctx)
+
+	status := http.StatusInternalServerError
+
+	// Create a new error response.
+	er := ErrorResponse{
+		Error: err.Error(),
+	}
+
+	// Check if this is a normal or a wrapped error.
+	switch err.(type) {
+	case *errpkg.Error:
+		// The errors provided by the error package related stuff.
+		e := err.(*errpkg.Error)
+
+		// Log the actual error message.
+		//
+		// This is what will be shown in the services' logs for
+		// internal purpose only.
+		log.Error(
+			"ORIGINAL ERROR",
+			"error_type", e.Type(),
+			"error", e.OriginalError(),
+			"status", e.StatusCode(),
+			"attributes", e.Attributes(),
+		)
+
+		// Update any attributes or status set in the error.
+		er.Data = e.Attributes()
+		status = e.StatusCode()
+	default:
+		// This is an unknown error. Log it and set the status code
+		status = http.StatusInternalServerError
+	}
+
+	// Respond with the error back to the client
+	if err := Respond(ctx, w, er, status); err != nil {
+		return err
 	}
 
 	return nil

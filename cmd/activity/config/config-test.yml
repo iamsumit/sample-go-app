@@ -1,0 +1,11 @@
+db:
+  name: activity_db
+  user: root
+  password: root
+  host: localhost
+  port: 8087
+launch_darkly:
+  secret_key: some-secret-key
+jaeger:
+  host: "no-matter"
+  path: "no-matter"

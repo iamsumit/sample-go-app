@@ -17,6 +17,7 @@ import (
 // A Handler is a type that handles a http request within the framework.
 type Handler func(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 
+// API is the handler for api package.
 type API struct {
 	shutdown chan os.Signal
 	mux      *mux.Router

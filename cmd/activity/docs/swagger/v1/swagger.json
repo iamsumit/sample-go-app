@@ -1,0 +1,401 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "the purpose of this application is to provide basic routes\nto play with.\n\nThis should demonstrate all the possible comment annotations\nthat are available to turn go code into a fully compliant swagger 2.0 spec",
+    "title": "Activity API.",
+    "termsOfService": "there are no TOS at this moment, use at your own risk we take no responsibility",
+    "version": "0.0.1"
+  },
+  "host": "localhost:8081",
+  "basePath": "/",
+  "paths": {
+    "/v1/activity": {
+      "post": {
+        "description": "This will help you create a new activity by given information.\nIt will validate the information and create a new activity.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "activity"
+        ],
+        "summary": "Create returns the endpoint for the activity handler.",
+        "operationId": "createActivity",
+        "parameters": [
+          {
+            "x-go-name": "Body",
+            "description": "The body to create a new activity.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/createActivity"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "$ref": "#/responses/activityResponse201"
+          },
+          "400": {
+            "$ref": "#/responses/activityResponse400"
+          },
+          "500": {
+            "$ref": "#/responses/activityResponse500"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "type": "object",
+      "title": "ErrorResponse is the form used for API responses from failures in the API.",
+      "properties": {
+        "data": {
+          "description": "in:body",
+          "type": "object",
+          "additionalProperties": {},
+          "x-go-name": "Data",
+          "example": {
+            "field": "error message for this specific field"
+          }
+        },
+        "error": {
+          "description": "in:body",
+          "type": "string",
+          "x-go-name": "Error",
+          "example": "data is not in proper format"
+        }
+      },
+      "x-go-package": "github.com/iamsumit/sample-go-app/pkg/api"
+    },
+    "activity": {
+      "type": "object",
+      "title": "ActivityRes represents the information will be returned by the API.",
+      "required": [
+        "id",
+        "entity",
+        "operation"
+      ],
+      "properties": {
+        "app": {
+          "$ref": "#/definitions/app"
+        },
+        "created_at": {
+          "description": "CreatedAt represents the time when the user was created.\n\ntype: string",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt",
+          "example": "2020-01-01T00:00:00Z"
+        },
+        "entity": {
+          "description": "Entity of the activity\n\ntype: string",
+          "type": "string",
+          "x-go-name": "Entity",
+          "example": "user"
+        },
+        "id": {
+          "description": "ID of the activity\n\ntype: int",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID",
+          "example": 1
+        },
+        "operation": {
+          "description": "Operation of the activity\n\ntype: string",
+          "type": "string",
+          "x-go-name": "Operation",
+          "example": "created"
+        },
+        "updated_at": {
+          "description": "UpdatedAt represents the time when the user was updated.\n\ntype: string",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "UpdatedAt",
+          "example": "2020-01-01T00:00:00Z"
+        }
+      },
+      "x-go-name": "ActivityRes",
+      "x-go-package": "github.com/iamsumit/sample-go-app/activity/internal/handler/activity/v1"
+    },
+    "app": {
+      "type": "object",
+      "title": "App represents the application returned along with activity information.",
+      "required": [
+        "id",
+        "name",
+        "alias"
+      ],
+      "properties": {
+        "alias": {
+          "description": "Alias of the app\n\ntype: string",
+          "type": "string",
+          "x-go-name": "Alias",
+          "example": "sample"
+        },
+        "created_at": {
+          "description": "CreatedAt represents the time when the app was created.\n\ntype: string",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt",
+          "example": "2020-01-01T00:00:00Z"
+        },
+        "id": {
+          "description": "ID of the app\n\ntype: int",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID",
+          "example": 1
+        },
+        "name": {
+          "description": "Name of the app\n\ntype: string",
+          "type": "string",
+          "x-go-name": "Name",
+          "example": "sample"
+        },
+        "updated_at": {
+          "description": "UpdatedAt represents the time when the app was updated.\n\ntype: string",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "UpdatedAt",
+          "example": "2020-01-01T00:00:00Z"
+        }
+      },
+      "x-go-name": "App",
+      "x-go-package": "github.com/iamsumit/sample-go-app/activity/internal/handler/activity/v1"
+    },
+    "createActivity": {
+      "type": "object",
+      "title": "NewActivity represents the information required to create a New Activity.",
+      "required": [
+        "app_name",
+        "entity",
+        "operation"
+      ],
+      "properties": {
+        "app_name": {
+          "description": "Name of the application to which this activity belongs\n\nin: body\ntype: string",
+          "type": "string",
+          "x-go-name": "AppName",
+          "example": "sample"
+        },
+        "entity": {
+          "description": "Name of the entity to which this activity belongs\n\nin: body\ntype: string",
+          "type": "string",
+          "x-go-name": "Entity",
+          "example": "user"
+        },
+        "operation": {
+          "description": "Operation performed on the entity\n\nin: body\ntype: string",
+          "type": "string",
+          "x-go-name": "Operation",
+          "example": "created"
+        }
+      },
+      "x-go-name": "NewActivity",
+      "x-go-package": "github.com/iamsumit/sample-go-app/activity/internal/handler/activity/v1"
+    },
+    "list": {
+      "type": "object",
+      "title": "Pagination structure to be used by the list endpoints.",
+      "properties": {
+        "direction": {
+          "description": "The direction of the sort\n\nin: query",
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "x-go-name": "Direction"
+        },
+        "page": {
+          "description": "The current page\n\nin: query\ntype: integer",
+          "type": "integer",
+          "format": "int64",
+          "minimum": 1,
+          "x-go-name": "Page"
+        },
+        "per_page": {
+          "description": "The per page limit\n\nin: query\ntype: integer",
+          "type": "integer",
+          "format": "int64",
+          "maximum": 100,
+          "minimum": 1,
+          "x-go-name": "PerPage"
+        },
+        "sort": {
+          "description": "The column to sort on\n\nin: query",
+          "type": "string",
+          "enum": [
+            "created",
+            "updated"
+          ],
+          "x-go-name": "Sort"
+        }
+      },
+      "x-go-name": "Pagination",
+      "x-go-package": "github.com/iamsumit/sample-go-app/pkg/db"
+    }
+  },
+  "responses": {
+    "activityResponse200": {
+      "description": "",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "Data\nin: body",
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/activity"
+            },
+            "x-go-name": "Data"
+          },
+          "success": {
+            "description": "Success",
+            "type": "boolean",
+            "x-go-name": "Success",
+            "example": false
+          },
+          "timestamp": {
+            "description": "Timestamp",
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "Timestamp",
+            "example": 1639237536
+          }
+        }
+      }
+    },
+    "activityResponse201": {
+      "description": "",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "Data\nin: body",
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/activity"
+            },
+            "x-go-name": "Data"
+          },
+          "success": {
+            "description": "Success",
+            "type": "boolean",
+            "x-go-name": "Success",
+            "example": false
+          },
+          "timestamp": {
+            "description": "Timestamp",
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "Timestamp",
+            "example": 1639237536
+          }
+        }
+      }
+    },
+    "activityResponse400": {
+      "description": "",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "$ref": "#/definitions/ErrorResponse"
+          },
+          "success": {
+            "description": "Success",
+            "type": "boolean",
+            "x-go-name": "Success",
+            "example": false
+          },
+          "timestamp": {
+            "description": "Timestamp",
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "Timestamp",
+            "example": 1639237536
+          }
+        }
+      }
+    },
+    "activityResponse404": {
+      "description": "",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "description": "Data\nin: body",
+            "type": "object",
+            "additionalProperties": {},
+            "x-go-name": "Errors",
+            "example": {
+              "error": "activity not found"
+            }
+          },
+          "success": {
+            "description": "Success",
+            "type": "boolean",
+            "x-go-name": "Success",
+            "example": false
+          },
+          "timestamp": {
+            "description": "Timestamp",
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "Timestamp",
+            "example": 1639237536
+          }
+        }
+      }
+    },
+    "activityResponse500": {
+      "description": "",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "description": "Data\nin: body",
+            "type": "object",
+            "additionalProperties": {},
+            "x-go-name": "Errors",
+            "example": {
+              "error": "some internal error occured"
+            }
+          },
+          "success": {
+            "description": "Success",
+            "type": "boolean",
+            "x-go-name": "Success",
+            "example": false
+          },
+          "timestamp": {
+            "description": "Timestamp",
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "Timestamp",
+            "example": 1639237536
+          }
+        }
+      }
+    }
+  }
+}

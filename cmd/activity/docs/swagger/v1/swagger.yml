@@ -1,0 +1,379 @@
+basePath: /
+consumes:
+    - application/json
+definitions:
+    ErrorResponse:
+        properties:
+            data:
+                additionalProperties: {}
+                description: in:body
+                example:
+                    field: error message for this specific field
+                type: object
+                x-go-name: Data
+            error:
+                description: in:body
+                example: data is not in proper format
+                type: string
+                x-go-name: Error
+        title: ErrorResponse is the form used for API responses from failures in the API.
+        type: object
+        x-go-package: github.com/iamsumit/sample-go-app/pkg/api
+    activity:
+        properties:
+            app:
+                $ref: '#/definitions/app'
+            created_at:
+                description: |-
+                    CreatedAt represents the time when the user was created.
+
+                    type: string
+                example: "2020-01-01T00:00:00Z"
+                format: date-time
+                type: string
+                x-go-name: CreatedAt
+            entity:
+                description: |-
+                    Entity of the activity
+
+                    type: string
+                example: user
+                type: string
+                x-go-name: Entity
+            id:
+                description: |-
+                    ID of the activity
+
+                    type: int
+                example: 1
+                format: int64
+                type: integer
+                x-go-name: ID
+            operation:
+                description: |-
+                    Operation of the activity
+
+                    type: string
+                example: created
+                type: string
+                x-go-name: Operation
+            updated_at:
+                description: |-
+                    UpdatedAt represents the time when the user was updated.
+
+                    type: string
+                example: "2020-01-01T00:00:00Z"
+                format: date-time
+                type: string
+                x-go-name: UpdatedAt
+        required:
+            - id
+            - entity
+            - operation
+        title: ActivityRes represents the information will be returned by the API.
+        type: object
+        x-go-name: ActivityRes
+        x-go-package: github.com/iamsumit/sample-go-app/activity/internal/handler/activity/v1
+    app:
+        properties:
+            alias:
+                description: |-
+                    Alias of the app
+
+                    type: string
+                example: sample
+                type: string
+                x-go-name: Alias
+            created_at:
+                description: |-
+                    CreatedAt represents the time when the app was created.
+
+                    type: string
+                example: "2020-01-01T00:00:00Z"
+                format: date-time
+                type: string
+                x-go-name: CreatedAt
+            id:
+                description: |-
+                    ID of the app
+
+                    type: int
+                example: 1
+                format: int64
+                type: integer
+                x-go-name: ID
+            name:
+                description: |-
+                    Name of the app
+
+                    type: string
+                example: sample
+                type: string
+                x-go-name: Name
+            updated_at:
+                description: |-
+                    UpdatedAt represents the time when the app was updated.
+
+                    type: string
+                example: "2020-01-01T00:00:00Z"
+                format: date-time
+                type: string
+                x-go-name: UpdatedAt
+        required:
+            - id
+            - name
+            - alias
+        title: App represents the application returned along with activity information.
+        type: object
+        x-go-name: App
+        x-go-package: github.com/iamsumit/sample-go-app/activity/internal/handler/activity/v1
+    createActivity:
+        properties:
+            app_name:
+                description: |-
+                    Name of the application to which this activity belongs
+
+                    in: body
+                    type: string
+                example: sample
+                type: string
+                x-go-name: AppName
+            entity:
+                description: |-
+                    Name of the entity to which this activity belongs
+
+                    in: body
+                    type: string
+                example: user
+                type: string
+                x-go-name: Entity
+            operation:
+                description: |-
+                    Operation performed on the entity
+
+                    in: body
+                    type: string
+                example: created
+                type: string
+                x-go-name: Operation
+        required:
+            - app_name
+            - entity
+            - operation
+        title: NewActivity represents the information required to create a New Activity.
+        type: object
+        x-go-name: NewActivity
+        x-go-package: github.com/iamsumit/sample-go-app/activity/internal/handler/activity/v1
+    list:
+        properties:
+            direction:
+                description: |-
+                    The direction of the sort
+
+                    in: query
+                enum:
+                    - asc
+                    - desc
+                type: string
+                x-go-name: Direction
+            page:
+                description: |-
+                    The current page
+
+                    in: query
+                    type: integer
+                format: int64
+                minimum: 1
+                type: integer
+                x-go-name: Page
+            per_page:
+                description: |-
+                    The per page limit
+
+                    in: query
+                    type: integer
+                format: int64
+                maximum: 100
+                minimum: 1
+                type: integer
+                x-go-name: PerPage
+            sort:
+                description: |-
+                    The column to sort on
+
+                    in: query
+                enum:
+                    - created
+                    - updated
+                type: string
+                x-go-name: Sort
+        title: Pagination structure to be used by the list endpoints.
+        type: object
+        x-go-name: Pagination
+        x-go-package: github.com/iamsumit/sample-go-app/pkg/db
+host: localhost:8081
+info:
+    description: |-
+        the purpose of this application is to provide basic routes
+        to play with.
+
+        This should demonstrate all the possible comment annotations
+        that are available to turn go code into a fully compliant swagger 2.0 spec
+    termsOfService: there are no TOS at this moment, use at your own risk we take no responsibility
+    title: Activity API.
+    version: 0.0.1
+paths:
+    /v1/activity:
+        post:
+            consumes:
+                - application/json
+            description: |-
+                This will help you create a new activity by given information.
+                It will validate the information and create a new activity.
+            operationId: createActivity
+            parameters:
+                - description: The body to create a new activity.
+                  in: body
+                  name: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/createActivity'
+                  x-go-name: Body
+            produces:
+                - application/json
+            responses:
+                "201":
+                    $ref: '#/responses/activityResponse201'
+                "400":
+                    $ref: '#/responses/activityResponse400'
+                "500":
+                    $ref: '#/responses/activityResponse500'
+            schemes:
+                - http
+                - https
+            summary: Create returns the endpoint for the activity handler.
+            tags:
+                - activity
+produces:
+    - application/json
+responses:
+    activityResponse200:
+        description: ""
+        schema:
+            properties:
+                data:
+                    description: |-
+                        Data
+                        in: body
+                    items:
+                        $ref: '#/definitions/activity'
+                    type: array
+                    x-go-name: Data
+                success:
+                    description: Success
+                    example: false
+                    type: boolean
+                    x-go-name: Success
+                timestamp:
+                    description: Timestamp
+                    example: 1639237536
+                    format: int64
+                    type: integer
+                    x-go-name: Timestamp
+            type: object
+    activityResponse201:
+        description: ""
+        schema:
+            properties:
+                data:
+                    description: |-
+                        Data
+                        in: body
+                    items:
+                        $ref: '#/definitions/activity'
+                    type: array
+                    x-go-name: Data
+                success:
+                    description: Success
+                    example: false
+                    type: boolean
+                    x-go-name: Success
+                timestamp:
+                    description: Timestamp
+                    example: 1639237536
+                    format: int64
+                    type: integer
+                    x-go-name: Timestamp
+            type: object
+    activityResponse400:
+        description: ""
+        schema:
+            properties:
+                errors:
+                    $ref: '#/definitions/ErrorResponse'
+                success:
+                    description: Success
+                    example: false
+                    type: boolean
+                    x-go-name: Success
+                timestamp:
+                    description: Timestamp
+                    example: 1639237536
+                    format: int64
+                    type: integer
+                    x-go-name: Timestamp
+            type: object
+    activityResponse404:
+        description: ""
+        schema:
+            properties:
+                errors:
+                    additionalProperties: {}
+                    description: |-
+                        Data
+                        in: body
+                    example:
+                        error: activity not found
+                    type: object
+                    x-go-name: Errors
+                success:
+                    description: Success
+                    example: false
+                    type: boolean
+                    x-go-name: Success
+                timestamp:
+                    description: Timestamp
+                    example: 1639237536
+                    format: int64
+                    type: integer
+                    x-go-name: Timestamp
+            type: object
+    activityResponse500:
+        description: ""
+        schema:
+            properties:
+                errors:
+                    additionalProperties: {}
+                    description: |-
+                        Data
+                        in: body
+                    example:
+                        error: some internal error occured
+                    type: object
+                    x-go-name: Errors
+                success:
+                    description: Success
+                    example: false
+                    type: boolean
+                    x-go-name: Success
+                timestamp:
+                    description: Timestamp
+                    example: 1639237536
+                    format: int64
+                    type: integer
+                    x-go-name: Timestamp
+            type: object
+schemes:
+    - http
+    - https
+swagger: "2.0"

@@ -5,7 +5,7 @@ This is my sample project to try out different things for my POC purposes.
 
 ## Applications:
 
-There are two applications at the moment of writing this README. The first one is sample, and another one is message. Both resides in the [cmd][cmd] directory.
+There are three applications at the moment of writing this README. The first one is sample, the second one is message and thid one is activity. All resides in the [cmd][cmd] directory.
 
 There is [pkg][pkg] directory as well which contains common packages to be used by the applications.
 
@@ -24,6 +24,12 @@ I have tried following in the sample service:
 - [flyway][flyway] Flyway tool to handle the database migration.
 - [mux][mux] Mux is used for request routing handler.
 - [traefik][traefik] Traefik provides a way for API management.
+
+### Activity:
+
+Along with couple things in Sample service, I have tried following:
+
+- [gokit][gokit]: It provides toolkit to write beautiful microservice architecture.
 
 ### Message:
 
@@ -54,11 +60,20 @@ There are certain dependencies that we have to install first before we can run t
 - `task sample:init`: To set the environment files.
 - `task sample:migrate`: To migrate the database.
 - `task sample:start`: To start the sample application and its dependent services which are database, jaeger, grafana and prometheus.
-- `task sample:stop`: To stop the database container and its dependent services.
+- `task sample:stop`: To stop the database container and the service.
+- `task all:down`: To stop all the services using one command.
 
 ![grafana datasource config](./docs/images/grafana-datasource-config.png)
 
 ![grafana dashboard](./docs/images/grafana-dashboard.png)
+
+### Activity Application:
+
+- `task activity:init`: To set the environment files.
+- `task activity:migrate`: To migrate the database.
+- `task activity:start`: To start the activity application and its dependent services which are database, jaeger, grafana and prometheus.
+- `task activity:stop`: To stop the database container and the service.
+- `task all:down`: To stop all the services using one command.
 
 #### Message Application:
 
@@ -80,6 +95,7 @@ There are certain task commands to run the applications. Lets go step by step:
 [golang]:https://go.dev/doc/install
 [docker]:https://www.docker.com/get-started/
 [mux]:https://github.com/gorilla/mux
+[gokit]:https://github.com/go-kit/kit
 [viper]:https://github.com/spf13/viper
 [cobra]:https://github.com/spf13/cobra
 [protobuf]:https://github.com/golang/protobuf

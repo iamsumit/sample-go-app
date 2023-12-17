@@ -3,7 +3,7 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	errpkg "github.com/iamsumit/sample-go-app/pkg/error"
@@ -39,7 +39,7 @@ func Decode(ctx context.Context, r *http.Request, log logger.Logger, d interface
 	defer span.End()
 
 	// Read the request body
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		log.Error(
@@ -47,7 +47,6 @@ func Decode(ctx context.Context, r *http.Request, log logger.Logger, d interface
 			"error", err.Error(),
 			"method", r.Method,
 			"endpoint", r.URL.Path,
-			"operation", "createUser",
 		)
 
 		return ErrDecode(err)
@@ -64,7 +63,6 @@ func Decode(ctx context.Context, r *http.Request, log logger.Logger, d interface
 			"error", err.Error(),
 			"method", r.Method,
 			"endpoint", r.URL.Path,
-			"operation", "createUser",
 		)
 
 		return ErrDecode(err)

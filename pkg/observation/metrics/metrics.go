@@ -14,6 +14,7 @@ import (
 
 // Handler is the metrics handler.
 type Handler struct {
+	name     string
 	provider common.Provider
 	request  common.Counter
 	latency  common.Counter
@@ -27,6 +28,8 @@ func New(name string, opts ...Option) (*Handler, error) {
 		return nil, err
 	}
 
+	m.name = name
+
 	err = m.counter()
 	if err != nil {
 		return nil, err
@@ -38,12 +41,12 @@ func New(name string, opts ...Option) (*Handler, error) {
 // counter registers the counter for metrics.
 func (m *Handler) counter() error {
 	var err error
-	m.request, err = m.provider.NewCounter("sample_request", "Number of requests", "path", "method")
+	m.request, err = m.provider.NewCounter(m.name+"/request", "Number of requests", "path", "method")
 	if err != nil {
 		return err
 	}
 
-	m.latency, err = m.provider.NewCounter("sample_latency", "Latency of requests", "path", "method")
+	m.latency, err = m.provider.NewCounter(m.name+"/latency", "Latency of requests", "path", "method")
 	if err != nil {
 		return err
 	}

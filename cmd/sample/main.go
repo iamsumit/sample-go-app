@@ -64,7 +64,7 @@ func start(log logger.Logger) error {
 	// Metrics
 	// -------------------------------------------------------------------
 	mProvider, err := smetrics.New(&smetrics.Config{
-		Name:     "sample",
+		Name:     app.Name(),
 		Type:     smetrics.Otel,
 		Exporter: smetrics.Prometheus,
 	})

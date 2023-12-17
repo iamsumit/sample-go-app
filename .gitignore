@@ -2,4 +2,5 @@
 cmd/message/api
 build/grafana/lib
 build/mysql/lib
+build/postgresql/lib
 .golangci.yml

@@ -1,0 +1,11 @@
+FROM golang:1.21-alpine
+
+WORKDIR /app
+
+# Install task locally
+ARG TASK_VERSION=v3.32.0
+RUN go install github.com/go-task/task/v3/cmd/task@${TASK_VERSION}
+
+ENV GOCACHE /tmp/
+
+CMD ["task", "activity:run-local"]
