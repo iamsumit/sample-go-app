@@ -8,26 +8,30 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/iamsumit/sample-go-app/pkg/api"
 	"github.com/iamsumit/sample-go-app/pkg/logger"
 	"github.com/iamsumit/sample-go-app/pkg/validator"
+	"github.com/iamsumit/sample-go-app/sample/internal/client/activity"
 	"github.com/iamsumit/sample-go-app/sample/internal/handler/entitygrp/user/store"
 )
 
 // Handler holds the dependencies for the user handler.
 type Handler struct {
-	log   logger.Logger
-	store *store.Handler
+	log      logger.Logger
+	store    *store.Handler
+	activity *activity.Client
 }
 
 // New returns a new user handler for v1 version of user routes.
-func New(log logger.Logger, db *sql.DB) *Handler {
+func New(log logger.Logger, db *sql.DB, actClient *activity.Client) *Handler {
 	return &Handler{
-		log:   log,
-		store: store.New(db),
+		log:      log,
+		store:    store.New(db),
+		activity: actClient,
 	}
 }
 
@@ -66,7 +70,15 @@ func (h *Handler) All(ctx context.Context, w http.ResponseWriter, r *http.Reques
 		users[i] = new(User).UpdateFrom(*user)
 	}
 
-	api.Respond(ctx, w, users, http.StatusOK)
+	err = api.Respond(ctx, w, users, http.StatusOK)
+
+	if err != nil {
+		return err
+	}
+
+	// Record the activity.
+	h.activity.Record(ctx, "users", "list")
+
 	return nil
 }
 
@@ -111,7 +123,14 @@ func (h *Handler) ByID(ctx context.Context, w http.ResponseWriter, r *http.Reque
 	user := new(User).UpdateFrom(*storeUser)
 	err = api.Respond(ctx, w, []User{user}, http.StatusOK)
 
-	return err
+	if err != nil {
+		return err
+	}
+
+	// Record the activity.
+	h.activity.Record(ctx, fmt.Sprintf("user:%d", user.ID), "get")
+
+	return nil
 }
 
 // swagger:route POST /v1/user users createUser
@@ -167,5 +186,12 @@ func (h *Handler) CreateUser(ctx context.Context, w http.ResponseWriter, r *http
 	user := new(User).UpdateFrom(*storeUser)
 	err = api.Respond(ctx, w, []User{user}, http.StatusCreated)
 
-	return err
+	if err != nil {
+		return err
+	}
+
+	// Record the activity.
+	h.activity.Record(ctx, fmt.Sprintf("user:%d", user.ID), "create")
+
+	return nil
 }

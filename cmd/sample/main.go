@@ -16,6 +16,7 @@ import (
 	"github.com/iamsumit/sample-go-app/pkg/observation/metrics"
 	"github.com/iamsumit/sample-go-app/pkg/tracer"
 	"github.com/iamsumit/sample-go-app/pkg/util/app"
+	"github.com/iamsumit/sample-go-app/sample/internal/client/activity"
 	"github.com/iamsumit/sample-go-app/sample/internal/config"
 	"github.com/iamsumit/sample-go-app/sample/internal/handler/router"
 	"github.com/spf13/viper"
@@ -114,7 +115,7 @@ func start(log logger.Logger) error {
 	// tracer.Global("sample") can be used to get the global tracer instance.
 	_, err = tracer.New(context.Background(), &tracer.Config{
 		Name:        app.Name(),
-		ServiceName: app.Name(),
+		ServiceName: app.TraceName,
 		Jaeger: tracer.JaegerConfig{
 			Host: configuration.Jaeger.Host,
 			Path: configuration.Jaeger.Path,
@@ -143,6 +144,11 @@ func start(log logger.Logger) error {
 	}
 
 	// -------------------------------------------------------------------
+	// Activity Client
+	// -------------------------------------------------------------------
+	actClient := activity.New(configuration.ActivityEndpoint)
+
+	// -------------------------------------------------------------------
 	// Routing
 	// -------------------------------------------------------------------
 
@@ -164,8 +170,9 @@ func start(log logger.Logger) error {
 		exPaths,
 		routes,
 		router.Config{
-			Log: log,
-			DB:  sqlDB,
+			Log:      log,
+			DB:       sqlDB,
+			Activity: actClient,
 		},
 		mw...,
 	)

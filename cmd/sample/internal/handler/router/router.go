@@ -35,6 +35,7 @@ import (
 	"github.com/iamsumit/sample-go-app/pkg/api"
 	"github.com/iamsumit/sample-go-app/pkg/api/middleware"
 	"github.com/iamsumit/sample-go-app/pkg/logger"
+	"github.com/iamsumit/sample-go-app/sample/internal/client/activity"
 	userv1 "github.com/iamsumit/sample-go-app/sample/internal/handler/entitygrp/user/v1"
 	redoc "github.com/mvrilo/go-redoc"
 	swgui "github.com/swaggest/swgui/v5cdn"
@@ -48,8 +49,9 @@ type Routes struct {
 
 // Config holds the configuration for the router.
 type Config struct {
-	Log logger.Logger
-	DB  *sql.DB
+	Log      logger.Logger
+	DB       *sql.DB
+	Activity *activity.Client
 }
 
 // ConfigureRoutes configures the routes for the application.
@@ -92,7 +94,7 @@ func SetV1Routes(a *api.API, cfg Config) {
 	// -------------------------------------------------------------------
 	// User Handler & Routes
 	// -------------------------------------------------------------------
-	userV1 := userv1.New(cfg.Log, cfg.DB)
+	userV1 := userv1.New(cfg.Log, cfg.DB, cfg.Activity)
 
 	a.Handle(http.MethodGet, "/v1/user/{id}", userV1.ByID)
 	a.Handle(http.MethodGet, "/v1/users", userV1.All)

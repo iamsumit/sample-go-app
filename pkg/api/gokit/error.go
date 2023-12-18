@@ -1,4 +1,4 @@
-package apigokit
+package gokit
 
 import "errors"
 

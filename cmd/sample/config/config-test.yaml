@@ -6,6 +6,9 @@ mysql:
   port: 8086
 launch_darkly:
   secret_key: some-secret-key
+activity:
+  host: somehost
+  port: 8080
 jaeger:
   host: "no-matter"
   path: "no-matter"

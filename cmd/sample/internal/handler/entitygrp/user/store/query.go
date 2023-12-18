@@ -221,12 +221,10 @@ func (h *Handler) Create(ctx context.Context, user User) (*User, error) {
 		// If email is provided, it must be unique.
 		existingUser, err := h.ByEmail(ctx, *user.Email)
 		if err != nil && !errors.Is(err, ErrUserNotFound) {
-
 			return nil, err
 		}
 
 		if existingUser != nil {
-
 			return nil, ErrDuplicateEmail
 		}
 	}

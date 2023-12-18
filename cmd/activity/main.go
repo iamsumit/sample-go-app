@@ -114,7 +114,7 @@ func start(log logger.Logger) error {
 	// tracer.Global("activity") can be used to get the global tracer instance.
 	_, err = tracer.New(context.Background(), &tracer.Config{
 		Name:        app.Name(),
-		ServiceName: app.Name(),
+		ServiceName: app.TraceName,
 		Jaeger: tracer.JaegerConfig{
 			Host: configuration.Jaeger.Host,
 			Path: configuration.Jaeger.Path,

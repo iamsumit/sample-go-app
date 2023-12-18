@@ -2,6 +2,13 @@ package app
 
 import "os"
 
+var (
+	// TraceName is the name of the trace.
+	//
+	// It can be used in different services so that everything can be tracked at one place.
+	TraceName = "sample-go-app"
+)
+
 // Name returns the name of the application.
 //
 // It will be used as the service name in the traces.

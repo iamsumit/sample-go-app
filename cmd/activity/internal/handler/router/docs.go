@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/iamsumit/sample-go-app/pkg/api"
-	"github.com/iamsumit/sample-go-app/pkg/api/apigokit"
+	apigokit "github.com/iamsumit/sample-go-app/pkg/api/gokit"
 	redoc "github.com/mvrilo/go-redoc"
 	swgui "github.com/swaggest/swgui/v5cdn"
 )

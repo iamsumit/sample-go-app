@@ -5,6 +5,7 @@ replace github.com/iamsumit/sample-go-app/pkg => ../../pkg
 go 1.21.5
 
 require (
+	github.com/Masterminds/squirrel v1.5.4
 	github.com/go-kit/kit v0.13.0
 	github.com/iamsumit/sample-go-app/pkg v0.0.0-00010101000000-000000000000
 	github.com/mvrilo/go-redoc v0.1.4
@@ -30,6 +31,8 @@ require (
 	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.16.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
+	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
+	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect

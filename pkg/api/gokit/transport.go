@@ -1,4 +1,4 @@
-package apigokit
+package gokit
 
 import (
 	"context"
@@ -33,9 +33,9 @@ func (h *Handler) Handle(method string, path string, e endpoint.Endpoint, d Deco
 
 	gokitHandler := api.Handler(func(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 		httptransport.NewServer(
-			e,
-			decoder(d),
-			encodeResponse(method),
+			h.endpoint(r, e),
+			h.decoder(r, d),
+			h.encodeResponse(r),
 			opts...,
 		).ServeHTTP(w, r.WithContext(ctx))
 
@@ -46,7 +46,7 @@ func (h *Handler) Handle(method string, path string, e endpoint.Endpoint, d Deco
 }
 
 // decoder helps tracing the decoding.
-func decoder(d DecoderFunc) httptransport.DecodeRequestFunc {
+func (h *Handler) decoder(r *http.Request, d DecoderFunc) httptransport.DecodeRequestFunc {
 	return func(ctx context.Context, r *http.Request) (interface{}, error) {
 		// Start the tracing here.
 		_, span := tracer.Global("apigokit.Decode").Start(ctx, "apigokit.Decode")
@@ -60,6 +60,8 @@ func decoder(d DecoderFunc) httptransport.DecodeRequestFunc {
 		}
 
 		span.SetAttributes(
+			attribute.String("path", r.URL.Path),
+			attribute.String("method", r.Method),
 			attribute.String("data", fmt.Sprintf("%+v", d)),
 		)
 		return d, nil
@@ -72,7 +74,7 @@ func (h *Handler) encodeError(ctx context.Context, err error, w http.ResponseWri
 }
 
 // encodeResponse is a transport/http.EncodeResponseFunc that encodes
-func encodeResponse(method string) func(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+func (h *Handler) encodeResponse(r *http.Request) func(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 		// Start the tracing here.
 		_, span := tracer.Global("apigokit.encodeResponse").Start(ctx, "apigokit.encodeResponse")
@@ -94,7 +96,7 @@ func encodeResponse(method string) func(ctx context.Context, w http.ResponseWrit
 		// handler function. In form of errpkg.Error.
 		//
 		// See: api.NewError function.
-		switch method {
+		switch r.Method {
 		case http.MethodPost:
 			status = http.StatusCreated
 		case http.MethodDelete:

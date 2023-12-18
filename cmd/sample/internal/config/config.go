@@ -20,6 +20,10 @@ type Config struct {
 	// Jaeger holds the configuration for the Jaeger.
 	Jaeger JaegerConfig `mapstructure:"jaeger"`
 
+	// Activity holds the activity endpoint information.
+	// Set the ACTIVITY_ENDPOINT environment variable to change the value.
+	ActivityEndpoint string `mapstructure:"activity_endpoint"`
+
 	// Env holds the SAMPLE_ENV value.
 	Env string `mapstructure:"env"`
 

@@ -34,7 +34,7 @@ import (
 	activitydb "github.com/iamsumit/sample-go-app/activity/internal/repository/activity/db"
 	welcomedb "github.com/iamsumit/sample-go-app/activity/internal/repository/welcome/db"
 	"github.com/iamsumit/sample-go-app/pkg/api"
-	"github.com/iamsumit/sample-go-app/pkg/api/apigokit"
+	apigokit "github.com/iamsumit/sample-go-app/pkg/api/gokit"
 	"github.com/iamsumit/sample-go-app/pkg/api/middleware"
 	"github.com/iamsumit/sample-go-app/pkg/logger"
 )
