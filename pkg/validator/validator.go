@@ -61,8 +61,8 @@ func Validate(val interface{}) error {
 
 		// Convert the errors to a map of field name and error.
 		var attr = map[string]interface{}{}
-		for _, v := range errs {
-			attr[strings.ToLower(v.Field())] = strings.ToLower(v.Translate(h.t))
+		for k, v := range errs.Translate(h.t) {
+			attr[k] = strings.ToLower(v)
 		}
 
 		return NewError(

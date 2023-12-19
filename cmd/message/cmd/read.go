@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	api "github.com/iamsumit/sample-go-app/message/api/message"
 	"github.com/spf13/cobra"
 	"google.golang.org/protobuf/proto"
@@ -32,7 +30,12 @@ func ReadMessage(cmd *cobra.Command, args []string) {
 		select {
 		case data := <-messageChannel:
 			proto.Unmarshal(data, &message)
-			fmt.Printf("Received message: %v\n", message)
+			log.Info(
+				"Received message",
+				"message", message.Message.String(),
+				"vcs", message.Vcs.Type.String(),
+				"request", message.Vcs.Request.GetTitle(),
+			)
 		}
 	}
 }

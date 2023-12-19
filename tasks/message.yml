@@ -31,6 +31,21 @@ tasks:
       - go run main.go read
     dir: ./cmd/message
 
+  up:
+    desc: "Start the message service."
+    dotenv: ['.env']
+    cmds:
+      - task: pubsub:up
+      - task: read
+    dir: ./cmd/message
+
+  down:
+    desc: "Start the message service."
+    dotenv: ['.env']
+    cmds:
+      - task: pubsub:down
+    dir: ./cmd/message
+
   publish:
     desc: "Publish the message in the message."
     dotenv: ['.env']

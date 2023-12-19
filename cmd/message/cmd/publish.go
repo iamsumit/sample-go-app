@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 
 	"github.com/golang/protobuf/proto"
@@ -45,5 +43,5 @@ func PublishMessage(cmd *cobra.Command, args []string) {
 		Data: messageBytes,
 	})
 
-	fmt.Printf("Message Published: %v", msgs)
+	log.Info("Message Published", "message", msgs)
 }
