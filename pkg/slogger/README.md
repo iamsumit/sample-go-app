@@ -1,42 +1,12 @@
 ## Logger
 
-It is a helper package to initiate the slog logger handler. It provides certain options to set the slog configuration, or if not provided, uses default.
+It is a helper package to initiate the logger handler. It provides support for different kinds of logger that can be used for your site.
 
+It uses slog as its logger for most of the parts. It also returns a `ServerLogger` that converts the slog to `log.Logger` so that the `http.Server` can use the same kind of logger.
 
-### Examples:
+It has support for following loggers:
 
-```go
-// This will initiate a text logger.
-l := slogger.New()
-
-// This will initiate a json logger.
-l := slogger.New(
-  slogger.WithFormat(slogger.JSON),
-)
-
-// This will initiate a json logger and disable printing the source of the log.
-// Which includes the file name and line number where it was printed. 
-l := slogger.New(
-  slogger.WithFormat(slogger.JSON),
-  slogger.WithOutSource(),
-)
-
-// This can use a io.Writer that writes the logs to grafana logger.
-l := slogger.New(
-  slogger.WithWriter(grafana.Logger),
-)
-
-// It can be printed like this.
-log.Info(
-  "Build service is up",
-  slog.String("environment", appEnv),
-  slog.Int("port", config.Http.Port),
-)
-
-// Or it can be printed like this.
-log.Info(
-  "Build service is up",
-  "environment", appEnv,
-  "port", config.Http.Port,
-)
-```
+- `GCloudLogger`: To be used in the google cloud for google cloud specific logging structure.
+- `TextLogger`: It can be used for text formatted logs, probably on local.
+- `JSONLogger`: It can be used for json formatted logs, probably on cloud.
+- `TintLogger`: It can be used for colored text formmatted logs, probably on local.

@@ -28,6 +28,14 @@ tasks:
       - task: sample:init
       - task: message:init
 
+  run:tests:
+    desc: Test all the applications.
+    cmds:
+      - task: go:test
+        vars:
+          GO_PROJECT_FOLDER: '{{ .PKG_DIR }}'
+      - task: sample:run-tests
+
   all:up:
     desc: Start the applications with traefik API Gateway
     cmds:

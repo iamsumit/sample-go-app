@@ -16,6 +16,7 @@ Please note that this is not a showcase of go best practices. It just random cod
 I have tried following in the sample service:
 
 - [viper][viper] package to read the configuration from yaml structure and to read the environment variables.
+- [yaml][yaml] package to parse the config.yml file to see if it can take over viper for basic config reading purpose.
 - [launchdarky][ldarkly] package to try out the launch darky flag configuration.
 - [opentel][otel] package is a go framework to export the metrics and traces to different services.
 - [prometheus][prom] Prometheus is a powerful metrics collector and is used to try out the basic metrics collection.
@@ -97,6 +98,7 @@ There are certain task commands to run the applications. Lets go step by step:
 [mux]:https://github.com/gorilla/mux
 [gokit]:https://github.com/go-kit/kit
 [viper]:https://github.com/spf13/viper
+[yaml]:https://github.com/go-yaml/yaml/tree/v3.0.1
 [cobra]:https://github.com/spf13/cobra
 [protobuf]:https://github.com/golang/protobuf
 [protobufdev]:https://protobuf.dev/

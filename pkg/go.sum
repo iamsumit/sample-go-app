@@ -112,10 +112,6 @@ github.com/grpc-ecosystem/grpc-gateway/v2 v2.16.0 h1:YBftPWNWd4WwGqtY2yeZL2ef8rH
 github.com/grpc-ecosystem/grpc-gateway/v2 v2.16.0/go.mod h1:YN5jB8ie0yfIUg6VvR9Kz84aCaG7AsGZnLjhHbUqwPg=
 github.com/josharian/intern v1.0.0 h1:vlS4z54oSdjm0bgjRigI+G1HpF+tI+9rE5LLzOg8HmY=
 github.com/josharian/intern v1.0.0/go.mod h1:5DoeVV0s6jJacbCEi61lwdGj/aVlrQvzHFFd8Hwg//Y=
-github.com/jussi-kalliokoski/goldjson v1.0.0 h1:XqiUNujQ3e9mjFPsqEBTzaMVPNnMUlXa+yDEVT4Xla0=
-github.com/jussi-kalliokoski/goldjson v1.0.0/go.mod h1:KHjhomAO4vlPukhBzc5nwIJ2nNL39TLnEgoIsBd8bnY=
-github.com/jussi-kalliokoski/slogdriver v1.0.0 h1:43d9QxZhQYnVyn1tej73hRyQyCZWNfrFlk2r0zbdSTE=
-github.com/jussi-kalliokoski/slogdriver v1.0.0/go.mod h1:BeRKQXYK68y+eFw9QY/waUQAnruRZtSdPXMsdpp8dmM=
 github.com/karlseguin/expect v1.0.2-0.20190806010014-778a5f0c6003 h1:vJ0Snvo+SLMY72r5J4sEfkuE7AFbixEP2qRbEcum/wA=
 github.com/karlseguin/expect v1.0.2-0.20190806010014-778a5f0c6003/go.mod h1:zNBxMY8P21owkeogJELCLeHIt+voOSduHYTFUbwRAV8=
 github.com/launchdarkly/ccache v1.1.0 h1:voD1M+ZJXR3MREOKtBwgTF9hYHl1jg+vFKS/+VAkR2k=

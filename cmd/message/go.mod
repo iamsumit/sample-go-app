@@ -27,8 +27,6 @@ require (
 	github.com/googleapis/gax-go/v2 v2.12.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/jussi-kalliokoski/goldjson v1.0.0 // indirect
-	github.com/jussi-kalliokoski/slogdriver v1.0.0 // indirect
 	github.com/lmittmann/tint v1.0.3 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect

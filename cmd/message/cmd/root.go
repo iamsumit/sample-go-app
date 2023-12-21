@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"io"
 	"log/slog"
 	"os"
 
@@ -10,7 +11,7 @@ import (
 	pbsb "github.com/iamsumit/sample-go-app/pkg/pubsub"
 	"github.com/iamsumit/sample-go-app/pkg/slogger"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+	"gopkg.in/yaml.v3"
 )
 
 var (
@@ -28,23 +29,22 @@ func init() {
 	//--------------------------------------------------------------------
 	// Logger
 	//--------------------------------------------------------------------
-	log = slogger.New(
-		slogger.WithGroup(),
-		slogger.WithFormat(slogger.TINT),
-	)
+	log = slogger.WithFormat(os.Stdout, "tint")
 
 	// -------------------------------------------------------------------
 	// Configurations
 	// -------------------------------------------------------------------
 
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath("./config")
-	// Watch the config file for changes.
-	viper.WatchConfig()
+	configFilePath := "./config/config.yml"
 
 	// Read the configuration on load.
-	ReadConfig(&configuration)
+	err = ReadConfig(configFilePath, &configuration)
+	if err != nil {
+		log.Error("Error reading config file", "ERROR", err)
+		panic(err)
+	}
+
+	log.Info("configuration loaded", "topic", configuration.PubSub.Topic)
 
 	ctx = context.Background()
 	pbsbClient, _ = pbsb.New(ctx, configuration.PubSub.Project)
@@ -78,16 +78,26 @@ func Execute() {
 	}
 }
 
-func ReadConfig(configuration *config.Configuration) {
-	err := viper.ReadInConfig() // Find and read the config file
-	if err != nil {             // Handle errors reading the config file
+func ReadConfig(cfp string, configuration *config.Configuration) error {
+	cfgFile, err := os.Open(cfp)
+	if err != nil {
 		log.Error("Error reading config file", "ERROR", err)
-		panic(fmt.Errorf("fatal error config file: %w", err))
+		return err
 	}
 
-	err = viper.Unmarshal(&configuration)
+	defer cfgFile.Close()
+
+	// Read the content of the config file
+	content, err := io.ReadAll(cfgFile)
+	if err != nil {
+		return err
+	}
+
+	err = yaml.Unmarshal(content, &configuration)
 	if err != nil {
 		log.Error("Error unmarshalling config file", "ERROR", err)
-		fmt.Printf("Unable to decode into struct, %v", err)
+		return err
 	}
+
+	return nil
 }

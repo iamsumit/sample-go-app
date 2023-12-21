@@ -155,10 +155,6 @@ github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/jstemmer/go-junit-report v0.0.0-20190106144839-af01ea7f8024/go.mod h1:6v2b51hI/fHJwM22ozAgKL4VKDeJcHhJFhtBdhmNjmU=
 github.com/jstemmer/go-junit-report v0.9.1/go.mod h1:Brl9GWCQeLvo8nXZwPNNblvFj/XSXhF0NWZEnDohbsk=
-github.com/jussi-kalliokoski/goldjson v1.0.0 h1:XqiUNujQ3e9mjFPsqEBTzaMVPNnMUlXa+yDEVT4Xla0=
-github.com/jussi-kalliokoski/goldjson v1.0.0/go.mod h1:KHjhomAO4vlPukhBzc5nwIJ2nNL39TLnEgoIsBd8bnY=
-github.com/jussi-kalliokoski/slogdriver v1.0.0 h1:43d9QxZhQYnVyn1tej73hRyQyCZWNfrFlk2r0zbdSTE=
-github.com/jussi-kalliokoski/slogdriver v1.0.0/go.mod h1:BeRKQXYK68y+eFw9QY/waUQAnruRZtSdPXMsdpp8dmM=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
 github.com/kr/fs v0.1.0/go.mod h1:FFnZGqtBN9Gxj7eW1uZ42v5BccTP0vu6NEaFoC2HwRg=
 github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=
